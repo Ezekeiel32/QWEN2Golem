@@ -66,8 +66,6 @@ export function ChatPanel() {
         };
         setMessages((prev) => [...prev, assistantMessage]);
         setContext(result.updatedContext || []);
-      } else {
-        throw new Error('No response from AI');
       }
     } catch (error) {
       console.error('Error calling ollamaChat:', error);
