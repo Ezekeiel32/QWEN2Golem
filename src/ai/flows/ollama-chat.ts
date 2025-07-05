@@ -1,4 +1,3 @@
-// src/ai/flows/ollama-chat.ts
 'use server';
 /**
  * @fileOverview A chat flow that interacts with a Qwen 2 7b model hosted on an Ollama server.
@@ -28,38 +27,6 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
   return ollamaChatFlow(input);
 }
 
-const shouldMaintainContextTool = ai.defineTool({
-  name: 'shouldMaintainContext',
-  description: 'Determines whether to maintain the conversation history for context in subsequent turns. Use this tool if the user query requires context from previous turns.',
-  inputSchema: z.object({
-    userQuery: z.string().describe('The current user query.'),
-  }),
-  outputSchema: z.boolean().describe('Whether to maintain the conversation history.'),
-}, async (input) => {
-  // Basic logic to decide whether to maintain context.
-  // More sophisticated logic can be added here based on the user query.
-  const query = input.userQuery.toLowerCase();
-  return !query.includes('new topic') && !query.includes('reset');
-});
-
-const ollamaChatPrompt = ai.definePrompt({
-  name: 'ollamaChatPrompt',
-  tools: [shouldMaintainContextTool],
-  input: {schema: OllamaChatInputSchema},
-  output: {schema: OllamaChatOutputSchema},
-  prompt: `You are a helpful chatbot assistant. Use the context to answer user questions.
-
-Context:
-{{#each context}}
-  {{this}}
-{{/each}}
-
-User: {{{prompt}}}
-
-Assistant:`,
-  model: 'ollama/qwen2:7b-custom',
-});
-
 const ollamaChatFlow = ai.defineFlow(
   {
     name: 'ollamaChatFlow',
@@ -68,29 +35,37 @@ const ollamaChatFlow = ai.defineFlow(
   },
   async input => {
     const {prompt, context, temperature} = input;
-    const shouldMaintainContext = await shouldMaintainContextTool({
-      userQuery: prompt,
+
+    // Construct the prompt manually for a simple text generation task.
+    // This is more robust for models that don't reliably produce structured JSON.
+    const fullPrompt = `You are a helpful chatbot assistant. Use the context to answer user questions.
+
+Context:
+${(context || []).join('\n')}
+
+User: ${prompt}
+
+Assistant:`;
+    
+    const llmResponse = await ai.generate({
+      model: 'ollama/qwen2:7b-custom',
+      prompt: fullPrompt,
+      config: {
+        temperature,
+      },
     });
 
-    const {output} = await ollamaChatPrompt(
-      {
-        prompt,
-        temperature,
-        context: shouldMaintainContext ? context : [],
-      },
-      {
-        config: {
-          temperature,
-        },
-      }
-    );
+    const responseText = llmResponse.text;
 
-    const updatedContext = shouldMaintainContext
-      ? [...(context || []), `User: ${prompt}`, `Assistant: ${output?.response || ''}`]
-      : [];
+    // Always maintain and update the context.
+    const updatedContext = [
+      ...(context || []), 
+      `User: ${prompt}`, 
+      `Assistant: ${responseText}`
+    ];
 
     return {
-      response: output!.response,
+      response: responseText,
       updatedContext: updatedContext,
     };
   }
