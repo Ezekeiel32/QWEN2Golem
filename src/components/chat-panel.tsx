@@ -30,7 +30,6 @@ export function ChatPanel() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [temperature, setTemperature] = useState(0.7);
-  const [context, setContext] = useState<string[]>([]);
   
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +55,6 @@ export function ChatPanel() {
       const result = await ollamaChat({
         prompt: input,
         temperature,
-        context,
       });
 
       if (result.response) {
@@ -65,7 +63,14 @@ export function ChatPanel() {
           content: result.response,
         };
         setMessages((prev) => [...prev, assistantMessage]);
-        setContext(result.updatedContext || []);
+      } else {
+        // If the response is empty, remove the user's message to avoid confusion
+        setMessages((prev) => prev.slice(0, prev.length - 1));
+        toast({
+            variant: 'default',
+            title: 'Empty Response',
+            description: 'The AI returned an empty response. Please try a different question.',
+        });
       }
     } catch (error) {
       console.error('Error calling ollamaChat:', error);
