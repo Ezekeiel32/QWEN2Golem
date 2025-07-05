@@ -1,8 +1,6 @@
-import withGenkit from '@genkit-ai/next';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Your Next.js configuration options...
+  // Your existing Next.js config
 };
 
-export default withGenkit(nextConfig);
+export default nextConfig;
