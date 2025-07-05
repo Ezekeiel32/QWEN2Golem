@@ -56,10 +56,8 @@ Context:
 
 User: {{{prompt}}}
 
-Assistant:`, // Removed media since it was unused
-  model: 'ollama/qwen2:7b',
-  temperature: '{{temperature}}',
-  apiUrl: 'https://81af-2a06-c701-9364-c400-a6f1-4b98-216b-5b28.ngrok-free.app/api/generate',
+Assistant:`,
+  model: 'ollama/qwen2:7b-custom',
 });
 
 const ollamaChatFlow = ai.defineFlow(
@@ -74,10 +72,18 @@ const ollamaChatFlow = ai.defineFlow(
       userQuery: prompt,
     });
 
-    const {output} = await ollamaChatPrompt({
-      ...input,
-      context: shouldMaintainContext ? context : [],
-    });
+    const {output} = await ollamaChatPrompt(
+      {
+        prompt,
+        temperature,
+        context: shouldMaintainContext ? context : [],
+      },
+      {
+        config: {
+          temperature,
+        },
+      }
+    );
 
     const updatedContext = shouldMaintainContext
       ? [...(context || []), `User: ${prompt}`, `Assistant: ${output?.response || ''}`]
