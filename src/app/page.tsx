@@ -7,6 +7,7 @@ import type { Message } from '@/components/chat-message';
 import { ollamaChat, type OllamaHistoryItem } from '@/ai/flows/ollama-chat';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 
 export type Conversation = {
   id: string;
@@ -138,22 +139,24 @@ export default function Home() {
   const activeChat = conversations.find(c => c.id === activeChatId);
 
   return (
-    <div className="flex h-svh w-full bg-background">
-      <ChatHistorySidebar
-        conversations={conversations}
-        activeChatId={activeChatId}
-        onNewChat={handleNewChat}
-        onSelectChat={handleSelectChat}
-        isLoading={isLoading}
-      />
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-8">
+    <SidebarProvider>
+      <Sidebar variant="inset" collapsible="icon">
+        <ChatHistorySidebar
+          conversations={conversations}
+          activeChatId={activeChatId}
+          onNewChat={handleNewChat}
+          onSelectChat={handleSelectChat}
+          isLoading={isLoading}
+        />
+      </Sidebar>
+      <SidebarInset>
         <ChatPanel
           messages={activeChat?.messages ?? []}
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
           isChatSelected={!!activeChat}
         />
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

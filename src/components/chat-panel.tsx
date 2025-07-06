@@ -76,7 +76,7 @@ export function ChatPanel({
   };
 
   return (
-    <Card className="w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl">
+    <Card className="w-full h-full flex flex-col shadow-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full">

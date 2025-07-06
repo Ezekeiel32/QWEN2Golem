@@ -1,10 +1,16 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
+import {
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { MessageSquare, Plus } from 'lucide-react';
 import type { Conversation } from '@/app/page';
-import { ScrollArea } from './ui/scroll-area';
 
 type ChatHistorySidebarProps = {
   conversations: Conversation[];
@@ -22,29 +28,49 @@ export function ChatHistorySidebar({
   isLoading,
 }: ChatHistorySidebarProps) {
   return (
-    <aside className="flex h-full w-full max-w-[280px] flex-col border-r bg-card p-2">
-      <div className="p-2">
-        <Button onClick={onNewChat} className="w-full" disabled={isLoading}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Chat
-        </Button>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="space-y-1 p-2">
-            {conversations.map((convo) => (
-            <Button
-                key={convo.id}
-                variant={activeChatId === convo.id ? 'secondary' : 'ghost'}
-                className="w-full justify-start truncate"
-                onClick={() => onSelectChat(convo.id)}
-                disabled={isLoading}
-            >
-                <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{convo.name || 'New Chat'}</span>
-            </Button>
-            ))}
+    <>
+      <SidebarHeader>
+        <div className="flex w-full items-center justify-between">
+          <h2 className="font-headline text-lg group-data-[collapsible=icon]:hidden">
+            QwenChats
+          </h2>
+          <SidebarTrigger />
         </div>
-      </ScrollArea>
-    </aside>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem className="p-2">
+            <SidebarMenuButton
+              onClick={onNewChat}
+              disabled={isLoading}
+              variant="default"
+              className="w-full"
+            >
+              <Plus />
+              <span>New Chat</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <div className="flex-1 space-y-1 p-2">
+            {conversations.map((convo) => (
+              <SidebarMenuItem key={convo.id}>
+                <SidebarMenuButton
+                  isActive={activeChatId === convo.id}
+                  onClick={() => onSelectChat(convo.id)}
+                  disabled={isLoading}
+                  tooltip={{
+                    children: convo.name || 'New Chat',
+                    side: 'right',
+                    align: 'center',
+                  }}
+                >
+                  <MessageSquare />
+                  <span className="truncate">{convo.name || 'New Chat'}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </div>
+        </SidebarMenu>
+      </SidebarContent>
+    </>
   );
 }
