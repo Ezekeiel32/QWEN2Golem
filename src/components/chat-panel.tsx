@@ -84,6 +84,7 @@ export function ChatPanel() {
     try {
       const result = await ollamaChat({
         prompt: input,
+        history: messages.map(({ role, content }) => ({ role, content })),
         temperature,
         fileContent
       });
@@ -208,7 +209,7 @@ export function ChatPanel() {
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => fileInput_current?.click()}
             disabled={isLoading}
             className="shrink-0"
             aria-label="Attach file"
