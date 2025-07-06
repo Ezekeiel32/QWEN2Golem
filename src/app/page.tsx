@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ChatPanel } from '@/components/chat-panel';
@@ -20,13 +21,46 @@ export default function Home() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Select the first chat on initial load if it exists
-    if (conversations.length > 0 && !activeChatId) {
-      setActiveChatId(conversations[0].id);
+    try {
+      const savedConversations = localStorage.getItem('qwenchat-conversations');
+      const savedActiveChatId = localStorage.getItem('qwenchat-activeChatId');
+      
+      const loadedConversations = savedConversations ? JSON.parse(savedConversations) : [];
+      setConversations(loadedConversations);
+
+      if (savedActiveChatId && loadedConversations.some((c: Conversation) => c.id === savedActiveChatId)) {
+        setActiveChatId(savedActiveChatId);
+      } else if (loadedConversations.length > 0) {
+        setActiveChatId(loadedConversations[0].id);
+      } else {
+        setActiveChatId(null);
+      }
+    } catch (error) {
+      console.error("Failed to load state from localStorage", error);
+      setConversations([]);
+      setActiveChatId(null);
+    } finally {
+        setIsLoaded(true);
     }
-  }, [conversations, activeChatId]);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem('qwenchat-conversations', JSON.stringify(conversations));
+        if (activeChatId) {
+          localStorage.setItem('qwenchat-activeChatId', activeChatId);
+        } else {
+          localStorage.removeItem('qwenchat-activeChatId');
+        }
+      } catch (error) {
+        console.error("Failed to save state to localStorage", error);
+      }
+    }
+  }, [conversations, activeChatId, isLoaded]);
 
   const handleNewChat = () => {
     const newId = uuidv4();
