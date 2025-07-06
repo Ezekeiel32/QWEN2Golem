@@ -133,7 +133,7 @@ export function ChatPanel({
             {!isChatSelected ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                 <Button variant="ghost" className="h-auto p-4 flex flex-col items-center gap-2" onClick={onNewChat}>
-                  <MessageSquarePlus className="w-12 h-12 mb-2" />
+                  <MessageSquarePlus className="w-16 h-16 mb-2" />
                   <p className="text-lg font-medium">Start a new conversation</p>
                   <p className="text-sm">Click here to begin.</p>
                 </Button>
