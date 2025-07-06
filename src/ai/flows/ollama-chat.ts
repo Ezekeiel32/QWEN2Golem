@@ -40,36 +40,44 @@ const ollamaChatFlow = ai.defineFlow(
     outputSchema: OllamaChatOutputSchema,
   },
   async input => {
-    const {prompt, temperature, fileContent, history = []} = input;
+    try {
+      const {prompt, temperature, fileContent, history = []} = input;
 
-    let fullPrompt = 'You are a helpful chatbot assistant. You must answer questions based on the provided conversation history and any attached file content.\n\n';
+      let fullPrompt = 'You are a helpful chatbot assistant. You must answer questions based on the provided conversation history and any attached file content.\n\n';
 
-    // Format the conversation history into the prompt string.
-    history.forEach(message => {
-        const role = message.role === 'user' ? 'User' : 'Assistant';
-        fullPrompt += `${role}: ${message.content}\n`;
-    });
-    
-    // Add the current user prompt.
-    let currentPromptContent = prompt;
-    if (fileContent) {
-      fullPrompt += `\n\nBase your answer on the following file content:\n\n---\n${fileContent}\n---`;
+      // Format the conversation history into the prompt string.
+      history.forEach(message => {
+          const role = message.role === 'user' ? 'User' : 'Assistant';
+          fullPrompt += `${role}: ${message.content}\n`;
+      });
+      
+      // Add the current user prompt.
+      let currentPromptContent = prompt;
+      if (fileContent) {
+        fullPrompt += `\n\nBase your answer on the following file content:\n\n---\n${fileContent}\n---`;
+      }
+      
+      fullPrompt += `\n\nUser: ${currentPromptContent}\nAssistant:`;
+
+      const llmResponse = await ai.generate({
+        model: 'ollama/qwen2:7b-custom',
+        prompt: fullPrompt,
+        config: {
+          temperature,
+        },
+      });
+
+      const responseText = llmResponse.text;
+
+      return {
+        response: responseText,
+      };
+    } catch (error) {
+        console.error("Error in ollamaChatFlow:", error);
+        if (error instanceof Error) {
+            throw new Error(`AI model request failed: ${error.message}`);
+        }
+        throw new Error('An unknown error occurred in the AI flow.');
     }
-    
-    fullPrompt += `\n\nUser: ${currentPromptContent}\nAssistant:`;
-
-    const llmResponse = await ai.generate({
-      model: 'ollama/qwen2:7b-custom',
-      prompt: fullPrompt,
-      config: {
-        temperature,
-      },
-    });
-
-    const responseText = llmResponse.text;
-
-    return {
-      response: responseText,
-    };
   }
 );
