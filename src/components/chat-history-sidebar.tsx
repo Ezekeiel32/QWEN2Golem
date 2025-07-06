@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { MessageSquare, Plus } from 'lucide-react';
 import type { Conversation } from '@/app/page';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type ChatHistorySidebarProps = {
   conversations: Conversation[];
@@ -27,6 +28,7 @@ export function ChatHistorySidebar({
   onSelectChat,
   isLoading,
 }: ChatHistorySidebarProps) {
+  const isMobile = useIsMobile();
   return (
     <>
       <SidebarHeader>
@@ -34,7 +36,7 @@ export function ChatHistorySidebar({
           <h2 className="font-headline text-lg group-data-[collapsible=icon]:hidden">
             QwenChats
           </h2>
-          <SidebarTrigger />
+          {!isMobile && <SidebarTrigger />}
         </div>
       </SidebarHeader>
       <SidebarContent>

@@ -22,12 +22,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, LoadingMessage, type Message } from './chat-message';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { SidebarTrigger } from './ui/sidebar';
 
 type ChatPanelProps = {
   messages: Message[];
   onSendMessage: (input: string, temperature: number, file: File | null) => Promise<void>;
   isLoading: boolean;
   isChatSelected: boolean;
+  onNewChat: () => void;
 };
 
 export function ChatPanel({
@@ -35,6 +38,7 @@ export function ChatPanel({
   onSendMessage,
   isLoading,
   isChatSelected,
+  onNewChat,
 }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const [temperature, setTemperature] = useState(0.7);
@@ -42,6 +46,7 @@ export function ChatPanel({
 
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (scrollAreaViewportRef.current) {
@@ -79,6 +84,7 @@ export function ChatPanel({
     <Card className="w-full h-full flex flex-col shadow-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
+          {isMobile && <SidebarTrigger />}
           <div className="p-2 bg-primary/10 rounded-full">
             <Bot className="w-6 h-6 text-primary" />
           </div>
@@ -126,9 +132,11 @@ export function ChatPanel({
           <div className="p-6 space-y-6">
             {!isChatSelected ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                <MessageSquarePlus className="w-12 h-12 mb-4" />
-                <p className="text-lg">Start a new conversation</p>
-                <p className="text-sm">Click the "New Chat" button in the sidebar to begin.</p>
+                <Button variant="ghost" className="h-auto p-4 flex flex-col items-center gap-2" onClick={onNewChat}>
+                  <MessageSquarePlus className="w-12 h-12 mb-2" />
+                  <p className="text-lg font-medium">Start a new conversation</p>
+                  <p className="text-sm">Click here to begin.</p>
+                </Button>
               </div>
             ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">

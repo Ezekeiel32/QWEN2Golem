@@ -155,6 +155,7 @@ export default function Home() {
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
           isChatSelected={!!activeChat}
+          onNewChat={handleNewChat}
         />
       </SidebarInset>
     </SidebarProvider>
