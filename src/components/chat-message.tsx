@@ -1,11 +1,14 @@
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, User } from 'lucide-react';
+import { Bot, FileText, User } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 export type Message = {
   role: 'user' | 'assistant';
   content: string;
+  file?: {
+    name: string;
+  };
 };
 
 type ChatMessageProps = {
@@ -36,7 +39,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : 'rounded-bl-none bg-card text-card-foreground'
         )}
       >
-        <p className="leading-relaxed">{message.content}</p>
+        {message.file && (
+          <div className="mb-2 flex items-center gap-2 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 p-2">
+            <FileText className="h-4 w-4 shrink-0" />
+            <span className="truncate font-medium">{message.file.name}</span>
+          </div>
+        )}
+        { message.content && <p className="leading-relaxed">{message.content}</p> }
       </div>
       {isUser && (
         <Avatar className="h-8 w-8">

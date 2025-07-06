@@ -19,10 +19,11 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, SendHorizonal, Settings2 } from 'lucide-react';
+import { Bot, Paperclip, SendHorizonal, Settings2, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, LoadingMessage, type Message } from './chat-message';
 import { Label } from './ui/label';
+import { Badge } from './ui/badge';
 
 export function ChatPanel() {
   const { toast } = useToast();
@@ -30,31 +31,61 @@ export function ChatPanel() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [temperature, setTemperature] = useState(0.7);
+  const [file, setFile] = useState<File | null>(null);
   
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+    if (scrollAreaViewportRef.current) {
+      scrollAreaViewportRef.current.scrollTop = scrollAreaViewportRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+        setFile(selectedFile);
+    }
+    if (e.target) {
+        e.target.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !file) || isLoading) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    let fileContent: string | undefined = undefined;
+    if (file) {
+        try {
+            fileContent = await file.text();
+        } catch (error) {
+            console.error("Error reading file:", error);
+            toast({
+                variant: 'destructive',
+                title: 'File Read Error',
+                description: 'Could not read the selected file.',
+            });
+            return;
+        }
+    }
+
+    const userMessage: Message = { 
+        role: 'user', 
+        content: input,
+        ...(file && { file: { name: file.name } })
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setFile(null);
     setIsLoading(true);
 
     try {
       const result = await ollamaChat({
         prompt: input,
         temperature,
+        fileContent
       });
 
       if (result.response) {
@@ -64,7 +95,6 @@ export function ChatPanel() {
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } else {
-        // If the response is empty, remove the user's message to avoid confusion
         setMessages((prev) => prev.slice(0, prev.length - 1));
         toast({
             variant: 'default',
@@ -80,7 +110,6 @@ export function ChatPanel() {
         description:
           'Failed to get a response from the AI. Please try again.',
       });
-      // remove the user message that failed
       setMessages((prev) => prev.slice(0, prev.length - 1));
     } finally {
       setIsLoading(false);
@@ -139,7 +168,7 @@ export function ChatPanel() {
       </CardHeader>
       <Separator />
       <CardContent className="flex-1 p-0 overflow-hidden">
-        <ScrollArea className="h-full" ref={scrollAreaRef}>
+        <ScrollArea className="h-full" viewportRef={scrollAreaViewportRef}>
           <div className="p-6 space-y-6">
             {messages.length === 0 && !isLoading && (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -155,13 +184,42 @@ export function ChatPanel() {
           </div>
         </ScrollArea>
       </CardContent>
-      <CardFooter className="p-4 border-t">
+      <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
+        {file && (
+            <div className="flex items-center gap-2">
+                <Badge variant="secondary">
+                    <Paperclip className="h-3 w-3 mr-1" />
+                    {file.name}
+                </Badge>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setFile(null)}>
+                    <X className="h-4 w-4" />
+                </Button>
+            </div>
+        )}
         <form onSubmit={handleSubmit} className="flex w-full items-end gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".txt,.csv,.py,.js,.ts,.html,.css,.json,.md"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLoading}
+            className="shrink-0"
+            aria-label="Attach file"
+          >
+            <Paperclip className="h-5 w-5" />
+          </Button>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
+            placeholder="Type your message or attach a file..."
             className="flex-1 resize-none min-h-[40px] max-h-40 bg-card"
             rows={1}
             disabled={isLoading}
@@ -169,7 +227,7 @@ export function ChatPanel() {
           <Button
             type="submit"
             size="icon"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || (!input.trim() && !file)}
             className="bg-accent hover:bg-accent/90 shrink-0"
             aria-label="Send message"
           >

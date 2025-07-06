@@ -13,6 +13,7 @@ import {z} from 'genkit';
 const OllamaChatInputSchema = z.object({
   prompt: z.string().describe('The prompt to send to the Ollama server.'),
   temperature: z.number().min(0).max(1).default(0.7).describe('The temperature to use for generating the response.'),
+  fileContent: z.string().optional().describe('The text content of an uploaded file.'),
 });
 export type OllamaChatInput = z.infer<typeof OllamaChatInputSchema>;
 
@@ -32,12 +33,16 @@ const ollamaChatFlow = ai.defineFlow(
     outputSchema: OllamaChatOutputSchema,
   },
   async input => {
-    const {prompt, temperature} = input;
+    const {prompt, temperature, fileContent} = input;
 
     // A simple prompt for a stateless chatbot.
-    const fullPrompt = `You are a helpful chatbot assistant. Answer the following question.
-User: ${prompt}
-Assistant:`;
+    let fullPrompt = `You are a helpful chatbot assistant. Answer the following question.`;
+
+    if (fileContent) {
+      fullPrompt += `\n\nBase your answer on the following file content:\n\n---\n${fileContent}\n---`;
+    }
+    
+    fullPrompt += `\n\nUser: ${prompt}\nAssistant:`;
     
     const llmResponse = await ai.generate({
       model: 'ollama/qwen2:7b-custom',
