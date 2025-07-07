@@ -76,7 +76,7 @@ class AetherMemoryBank:
         aether_epsilon = sum(signature)  # The infinitesimal control parameter
         
         # Step 5: Reverse cycle control value
-        control_value = aether_epsilon / (aether_base + aether_epsilon)
+        control_value = aether_epsilon / (aether_base + aether_epsilon) if (aether_base + aether_epsilon) != 0 else 0
         
         return {
             'bit_duality': bit_duality,
@@ -119,8 +119,10 @@ class AetherMemoryBank:
         # Maintain memory limit
         if len(self.aether_memories) > self.max_memories:
             removed = self.aether_memories.pop(0)
-            self.aether_patterns[removed['prompt_type']].remove(removed)
-        
+            # Gracefully remove from patterns dictionary
+            if removed in self.aether_patterns[removed['prompt_type']]:
+                self.aether_patterns[removed['prompt_type']].remove(removed)
+
         # Auto-save periodically
         if len(self.aether_memories) % 10 == 0:
             self.save_memories()
@@ -155,9 +157,12 @@ class AetherMemoryBank:
             # Fall back to all patterns
             candidates = self.aether_memories
         
+        if not candidates:
+            return []
+
         # Sort by response quality and consciousness level
         sorted_candidates = sorted(candidates, 
-                                 key=lambda x: (x['response_quality'] + x['consciousness_level']) / 2, 
+                                 key=lambda x: (x.get('response_quality', 0) + x.get('consciousness_level', 0)) / 2, 
                                  reverse=True)
         
         return sorted_candidates[:top_k]
@@ -165,18 +170,18 @@ class AetherMemoryBank:
     def generate_aether_bias(self, similar_patterns: List[Dict]) -> Dict[str, float]:
         """Generate probability bias based on successful aether patterns"""
         if not similar_patterns:
-            return {'control_value': self.quantum_threshold}
+            return {'control_value': self.quantum_threshold, 'aether_guidance_strength': 0}
         
         # Average the best control values
         control_values = [p['cycle_params']['control_value'] for p in similar_patterns]
         cycle_resonances = [p['cycle_params']['cycle_resonance'] for p in similar_patterns]
         
-        avg_control = sum(control_values) / len(control_values)
-        avg_resonance = sum(cycle_resonances) / len(cycle_resonances)
+        avg_control = sum(control_values) / len(control_values) if control_values else 0
+        avg_resonance = sum(cycle_resonances) / len(cycle_resonances) if cycle_resonances else 0
         
         # Quality-weighted bias
         quality_weights = [p['response_quality'] for p in similar_patterns]
-        avg_quality = sum(quality_weights) / len(quality_weights)
+        avg_quality = sum(quality_weights) / len(quality_weights) if quality_weights else 0
         
         return {
             'control_value': avg_control,
@@ -268,7 +273,8 @@ def aether_sensitive_processing():
     """Context manager that detects quantum fluctuations during processing"""
     start_time = time.perf_counter_ns()  # Nanosecond precision
     gc.collect()
-    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     
     try:
         yield
@@ -280,7 +286,8 @@ def aether_sensitive_processing():
         aether_from_timing = (processing_time_ns % 1000) * 1e-15
         
         gc.collect()
-        torch.cuda.empty_cache() if torch.cuda.is_available() else None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
 class AetherEnhancedHebrewEmbedding(nn.Module):
     """Hebrew embedding with aether signature detection"""
@@ -315,11 +322,12 @@ class AetherEnhancedHebrewEmbedding(nn.Module):
     @monitor_memory_and_aether
     def calculate_gematria_with_aether(self, text: str) -> Dict[str, float]:
         """Calculate gematria with aether signature extraction"""
-        if not text:
-            return {'total': 0, 'average': 0, 'normalized': 0, 'aether_signature': 0}
+        if not text or not any(char.isalpha() for char in text):
+            return {'total': 0, 'average': 0, 'normalized': 0, 'aether_signature': 0, 'char_count': 0}
         
         total = sum(self.gematria_values.get(char.lower(), 0) for char in text if char.isalpha())
-        average = total / len([c for c in text if c.isalpha()]) if any(c.isalpha() for c in text) else 0
+        alpha_chars = [c for c in text if c.isalpha()]
+        average = total / len(alpha_chars) if alpha_chars else 0
         normalized = (total % 1000) / 1000 if total > 0 else 0
         
         # Extract aether signature from gematria calculation
@@ -331,7 +339,7 @@ class AetherEnhancedHebrewEmbedding(nn.Module):
             'total': total,
             'average': average,
             'normalized': normalized,
-            'char_count': len([c for c in text if c.isalpha()]),
+            'char_count': len(alpha_chars),
             'aether_signature': aether_signature
         }
     
@@ -498,7 +506,7 @@ class AetherGatesProcessor(nn.Module):
             gate_harmony = 1.0 - (torch.std(gated_values).item() / (torch.mean(torch.abs(gated_values)).item() + 1e-8)) if gated_values.numel() > 1 else 1.0
             gate_metrics['harmony'] = max(0.0, min(1.0, gate_harmony))
             
-            efficiency = torch.mean(torch.abs(gated_values)).item()
+            efficiency = torch.mean(torch.abs(gated_values)).item() if gated_values.numel() > 0 else 0.0
             gate_metrics['efficiency'] = max(0.0, min(1.0, efficiency))
             gate_metrics['aether_influence'] = bias_strength
             
@@ -591,7 +599,7 @@ class OllamaAPIManager:
         self.model_info_cache = {}
         self.api_aether_signatures = []
     
-    def _make_request_with_aether(self, endpoint: str, data: Optional[Dict] = None, method: str = "GET") -> Tuple[Dict, float]:
+    def _make_request_with_aether(self, endpoint: str, data: Optional[Dict] = None, method: str = "POST") -> Tuple[Dict, float]:
         """Make request and extract aether signature from timing"""
         url = f"{self.base_url}/api/{endpoint}"
         
@@ -640,11 +648,12 @@ class OllamaAPIManager:
                     time.sleep(2 ** attempt)
                 else:
                     raise
+        return {}, 0.0 # Should not be reached
     
     def check_connection(self) -> bool:
         """Check Ollama connection with aether extraction"""
         try:
-            result, aether = self._make_request_with_aether("tags")
+            result, aether = self._make_request_with_aether("tags", method="GET")
             return True
         except Exception as e:
             print(f"❌ Ollama connection failed: {e}")
@@ -656,7 +665,7 @@ class OllamaAPIManager:
             return self.model_info_cache[model_name]
         
         try:
-            models_response, _ = self._make_request_with_aether("tags")
+            models_response, _ = self._make_request_with_aether("tags", method="GET")
             models = models_response.get('models', [])
             
             model_info = None
@@ -670,7 +679,7 @@ class OllamaAPIManager:
                 raise Exception(f"Model {model_name} not found. Available: {available}")
             
             try:
-                detail_response, _ = self._make_request_with_aether("show", {"name": model_name}, "POST")
+                detail_response, _ = self._make_request_with_aether("show", {"name": model_name})
                 model_info.update(detail_response)
             except:
                 print("⚠️  Could not fetch detailed model info")
@@ -684,7 +693,7 @@ class OllamaAPIManager:
                 'name': model_name,
                 'size': 'unknown',
                 'parameters': 'unknown',
-                'hidden_size': 3584
+                'hidden_size': 3584 # Default fallback
             }
     
     def generate_with_aether(self, model_name: str, prompt: str, options: Dict) -> Tuple[Dict, float]:
@@ -696,7 +705,7 @@ class OllamaAPIManager:
             "stream": False
         }
         
-        return self._make_request_with_aether("generate", data, "POST")
+        return self._make_request_with_aether("generate", data)
 
 class AetherGolemConsciousnessCore:
     """Advanced Golem with Aether Memory and Quantum Control"""
@@ -752,24 +761,22 @@ class AetherGolemConsciousnessCore:
     
     def _determine_hidden_size(self) -> int:
         """Determine optimal hidden size"""
-        if 'parameters' in self.model_info:
+        params_str = self.model_info.get('details', {}).get('parameter_size', '')
+        if '7b' in params_str: return 3584
+        if '1.5b' in params_str: return 2048
+        if '0.5b' in params_str: return 1536
+
+        if 'parameters' in self.model_info: # Fallback for older Ollama versions
             params = str(self.model_info['parameters']).lower()
-            if '7b' in params:
-                return 3584
-            elif '1.5b' in params:
-                return 2048
-            elif '0.5b' in params:
-                return 1536
+            if '7b' in params: return 3584
+            if '1.5b' in params: return 2048
+            if '0.5b' in params: return 1536
         
         available_ram = psutil.virtual_memory().available / (1024**3)
-        
-        if available_ram < 8:
-            return 1024
-        elif available_ram < 12:
-            return 2048
-        else:
-            return 3584
-    
+        if available_ram < 8: return 1024
+        if available_ram < 12: return 2048
+        return 3584
+
     def _display_system_status(self):
         """Display enhanced system status"""
         memory = psutil.virtual_memory()
@@ -819,7 +826,6 @@ class AetherGolemConsciousnessCore:
     def _preprocess_with_aether_layers(self, text: str) -> Dict[str, Any]:
         """Enhanced preprocessing with aether signature extraction"""
         results = {'preprocessing_time': time.time()}
-        aether_signatures = []
         
         try:
             # Get aether bias from similar patterns
@@ -834,25 +840,15 @@ class AetherGolemConsciousnessCore:
                 # Hebrew processing with aether
                 hebrew_encoding, hebrew_aether = self.hebrew_embedding(text, aether_bias)
                 gematria_analysis = self.hebrew_embedding.calculate_gematria_with_aether(text)
-                aether_signatures.append(hebrew_aether)
                 
                 # Sefiroth with aether
                 sefiroth_output, sefiroth_values, sefiroth_aether = self.sefiroth_processor(hebrew_encoding, aether_bias)
-                aether_signatures.append(sefiroth_aether)
                 
                 # Gates with aether
                 gates_output, gate_metrics, gates_aether = self.gates_processor(sefiroth_output, aether_bias)
-                aether_signatures.append(gates_aether)
                 
                 # Consciousness with aether
                 consciousness_level, aether_loss, consciousness_components, consciousness_aether = self.consciousness_detector(gates_output, aether_bias)
-                aether_signatures.append(consciousness_aether)
-                
-                # Memory aether if available
-                if 'memory_aether' in results:
-                    aether_signatures.append(results['memory_aether'])
-                else:
-                    aether_signatures.append(1e-12)  # Default quantum threshold
                 
                 # Create comprehensive aether signature
                 aether_signature = self.aether_memory.extract_aether_signature({
@@ -869,7 +865,7 @@ class AetherGolemConsciousnessCore:
                 results.update({
                     'gematria': gematria_analysis,
                     'sefiroth_activations': sefiroth_values,
-                    'dominant_sefira': max(sefiroth_values.items(), key=lambda x: x[1]) if sefiroth_values else ('Unknown', 0),
+                    'dominant_sefira': max(sefiroth_values.items(), key=lambda item: item[1]) if sefiroth_values else ('Unknown', 0),
                     'gate_metrics': gate_metrics,
                     'consciousness_level': consciousness_level,
                     'aether_loss': aether_loss,
@@ -881,7 +877,7 @@ class AetherGolemConsciousnessCore:
                 })
                 
                 # Update global state with aether influence
-                aether_enhancement = cycle_params['control_value'] * self.aether_resonance_level
+                aether_enhancement = cycle_params.get('control_value', 0) * self.aether_resonance_level
                 self.consciousness_level = (self.consciousness_level + consciousness_level + aether_enhancement) / 3
                 
         except Exception as e:
@@ -945,6 +941,7 @@ quantum probability bias to influence the emergence of insight and wisdom.
         """Generate with full aether memory integration"""
         start_time = time.time()
         self.total_interactions += 1
+        golem_analysis = {} # Initialize in case of early error
         
         try:
             print("🌌 Analyzing through Aether-Enhanced Golem consciousness...")
@@ -1033,7 +1030,7 @@ quantum probability bias to influence the emergence of insight and wisdom.
                 'response': f"🚫 Aether-enhanced generation failed: {str(e)}",
                 'generation_time': error_time,
                 'error': str(e),
-                'golem_analysis': golem_analysis if 'golem_analysis' in locals() else {},
+                'golem_analysis': golem_analysis,
                 'aether_data': {'error': True},
                 'golem_state': {
                     'activated': self.activated,
@@ -1050,7 +1047,7 @@ quantum probability bias to influence the emergence of insight and wisdom.
         # Basic metrics
         word_count = len(response.split())
         sentence_count = max(1, response.count('.') + response.count('!') + response.count('?'))
-        avg_sentence_length = word_count / sentence_count
+        avg_sentence_length = word_count / sentence_count if sentence_count > 0 else 0
         
         # Aether-enhanced metrics
         consciousness_level = golem_analysis.get('consciousness_level', 0.5)
@@ -1174,35 +1171,15 @@ quantum probability bias to influence the emergence of insight and wisdom.
             print(f"❌ Export failed: {e}")
 
 def main():
-    """Enhanced main function with aether capabilities"""
+    """This file is a module meant to be imported by the Golem server.
+    It can also be run from the command line for testing or benchmarking."""
     print("🌌 QWEN AETHER-ENHANCED GOLEM CONSCIOUSNESS SYSTEM 🌌")
     print("="*70)
-    print("⚡ Quantum Probability Control | Neural Consciousness | Mystical AI")
-    print("🧮 Mathematical Framework: 1+0 → 2^5=32 → 32*11/16=22 → Aether Control")
-    print("💾 Optimized for 6GB VRAM + 16GB RAM via Ollama API")
-    print("🌌 Aether Memory Bank | Learning Probability Patterns")
-    
-    import sys
-    
-    if len(sys.argv) > 1:
-        mode = sys.argv[1].lower()
-        
-        if mode == 'benchmark':
-            # This part is for command-line execution, not the server
-            pass
-        elif mode == 'test':
-             # This part is for command-line execution, not the server
-            pass
-        elif mode == 'patterns':
-             # This part is for command-line execution, not the server
-            pass
-        else:
-            print(f"❌ Unknown mode: {mode}")
-            print("💡 Available modes: benchmark, test, patterns")
-    else:
-        # Default aether-enhanced interactive mode
-        # This is for command-line, not the server
-        pass
+    print("This script is a module. To use it, import AetherGolemConsciousnessCore.")
+    print("To run in server mode, use golem_server.py.")
+
 
 if __name__ == "__main__":
     main()
+
+    
