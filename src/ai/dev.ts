@@ -1,4 +1,2 @@
-import { config } from 'dotenv';
-config();
-
-import '@/ai/flows/ollama-chat.ts';
+// This file is no longer used and can be deleted.
+// The Genkit dev server is not needed for the current setup.
