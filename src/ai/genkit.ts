@@ -4,7 +4,7 @@ import {ollama} from 'genkitx-ollama';
 export const ai = genkit({
   plugins: [
     ollama({
-      serverAddress: 'https://f09a-2a06-c701-9364-c400-a6f1-4b98-216b-5b28.ngrok-free.app',
+      serverAddress: 'https://68bf-2a02-6680-1162-2917-991d-2dc2-d730-4e.ngrok-free.app',
       client: {
         requestTimeout: 120000, // 2 minutes
         headers: {
