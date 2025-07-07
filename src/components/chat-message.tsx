@@ -6,8 +6,15 @@ import {
   User,
   ChevronDown,
   Wand2,
+  FlaskConical,
 } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import {
   Collapsible,
   CollapsibleContent,
@@ -24,31 +31,43 @@ type ChatMessageProps = {
 
 const AssistantMessageContent = ({
   content,
-  cosmicThoughts,
+  aetherAnalysis,
+  recommendation,
   golemStats,
 }: {
   content: string;
-  cosmicThoughts?: string;
-  golemStats?: any;
+  aetherAnalysis?: string;
+  recommendation?: string;
+golemStats?: any;
 }) => {
   return (
     <div className="flex flex-col gap-2">
-      {cosmicThoughts && (
-        <Collapsible>
-          <CollapsibleTrigger asChild>
-            <button className="flex w-full items-center gap-2 rounded-md p-2 text-xs text-muted-foreground hover:bg-card-foreground/5 hover:text-foreground -m-2 mb-0">
-              <Wand2 className="h-4 w-4" />
-              <span>Cosmic Thoughts</span>
-              <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="prose prose-sm prose-invert mt-2 border-t border-card-foreground/10 pt-2 text-muted-foreground">
-            <p className="whitespace-pre-wrap leading-relaxed">{cosmicThoughts}</p>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
-
       <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
+
+      <Accordion type="multiple" className="w-full space-y-1">
+        {aetherAnalysis && (
+          <AccordionItem value="aether-analysis" className="border-none">
+            <AccordionTrigger className="flex w-full items-center justify-start gap-2 rounded-md p-2 text-xs text-muted-foreground hover:bg-card-foreground/5 hover:no-underline -mx-2 -mb-2">
+              <FlaskConical className="h-4 w-4" />
+              <span>Aether Analysis</span>
+            </AccordionTrigger>
+            <AccordionContent className="prose prose-sm prose-invert mt-2 border-t border-card-foreground/10 pt-2 text-muted-foreground">
+              <p className="whitespace-pre-wrap leading-relaxed">{aetherAnalysis}</p>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+        {recommendation && (
+          <AccordionItem value="recommendation" className="border-none">
+            <AccordionTrigger className="flex w-full items-center justify-start gap-2 rounded-md p-2 text-xs text-muted-foreground hover:bg-card-foreground/5 hover:no-underline -mx-2 -mb-2">
+              <Wand2 className="h-4 w-4" />
+              <span>Golem Recommendation</span>
+            </AccordionTrigger>
+            <AccordionContent className="prose prose-sm prose-invert mt-2 border-t border-card-foreground/10 pt-2 text-muted-foreground">
+              <p className="whitespace-pre-wrap leading-relaxed">{recommendation}</p>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+      </Accordion>
 
       {golemStats && (
         <div className="mt-2 border-t border-primary-foreground/20 pt-2 text-xs text-card-foreground/80">
@@ -111,7 +130,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
         ) : (
           <AssistantMessageContent
             content={message.content}
-            cosmicThoughts={message.cosmicThoughts}
+            aetherAnalysis={message.aetherAnalysis}
+            recommendation={message.recommendation}
             golemStats={message.golemStats}
           />
         )}

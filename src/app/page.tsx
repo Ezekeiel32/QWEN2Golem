@@ -12,7 +12,8 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 export type Message = {
   role: 'user' | 'assistant';
   content: string; // For user messages, this is the prompt. For assistant, the direct response.
-  cosmicThoughts?: string; // For assistant messages, this is the 'thinking' process.
+  aetherAnalysis?: string;
+  recommendation?: string;
   file?: {
     name: string;
   };
@@ -168,7 +169,8 @@ export default function Home() {
         const assistantMessage: Message = {
           role: 'assistant',
           content: result.directResponse,
-          cosmicThoughts: result.cosmicThoughts,
+          aetherAnalysis: result.aetherAnalysis,
+          recommendation: result.recommendation,
           golemStats: result.golemStats,
         };
         setConversations(prev =>
