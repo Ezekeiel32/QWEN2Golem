@@ -26,6 +26,7 @@ import { Badge } from './ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from './ui/sidebar';
 import { Switch } from './ui/switch';
+import { cn } from '@/lib/utils';
 
 type ChatPanelProps = {
   messages: Message[];
