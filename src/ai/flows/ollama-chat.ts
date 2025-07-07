@@ -7,7 +7,7 @@
  * - OllamaChatOutput - The return type for the ollamaChat function.
  */
 
-import { z } from 'genkit';
+import { z } from 'zod';
 
 const OllamaHistoryItemSchema = z.object({
   role: z.enum(['user', 'assistant']),
