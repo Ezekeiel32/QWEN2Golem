@@ -34,12 +34,9 @@ export type OllamaChatOutput = z.infer<typeof OllamaChatOutputSchema>;
 
 
 export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutput> {
-  const golemUrl = process.env.GOLEM_SERVER_URL;
-  if (!golemUrl) {
-    throw new Error(
-      'GOLEM_SERVER_URL is not set. Please add it to your .env file and point it to your Golem Python server ngrok URL.'
-    );
-  }
+  // TEMPORARY FIX: Hardcoding the URL to bypass environment variable issues.
+  // When your ngrok URL changes, you will need to update it here.
+  const golemUrl = "https://9556-2a0d-6fc2-6800-6600-390b-5bea-4875-a81d.ngrok-free.app";
   
   // The Python Golem server expects the full context in the prompt, not as a history array.
   // We'll construct a single prompt string.
