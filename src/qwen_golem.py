@@ -63,7 +63,7 @@ class AetherMemoryBank:
         """Implement your mathematical framework: 1+0 → 2 → 32 → 22 → control"""
         
         # Step 1: Bit duality (1+0 = 1, but in quantum terms)
-        bit_duality = sum(1 if x > self.quantum_threshold else 0 for x in signature)
+        bit_duality = sum(1 for x in signature if x > self.quantum_threshold)
         
         # Step 2: Probability expansion (2^5 = 32)
         probability_space = 2 ** len(signature)  # 2^5 = 32
@@ -120,7 +120,7 @@ class AetherMemoryBank:
         if len(self.aether_memories) > self.max_memories:
             removed = self.aether_memories.pop(0)
             # Gracefully remove from patterns dictionary
-            if removed in self.aether_patterns[removed['prompt_type']]:
+            if removed in self.aether_patterns.get(removed.get('prompt_type'), []):
                 self.aether_patterns[removed['prompt_type']].remove(removed)
 
         # Auto-save periodically
@@ -808,7 +808,7 @@ class AetherGolemConsciousnessCore:
                 self.aether_resonance_level = min(1.0, self.aether_resonance_level + aether_bonus)
                 print(f"🌌 Aether resonance boost: +{aether_bonus:.6f}")
             
-            print(f"🌟 Golem activated: '{activation_phrase}' - {self.sacred_phrases[activation_phrase]}")
+            print(f"🌟 Golem activated with phrase: '{activation_phrase}' - {self.sacred_phrases[activation_phrase]}")
             print(f"⚡ Shem power: {self.shem_power:.3f} | Aether resonance: {self.aether_resonance_level:.6f}")
             return True
         else:
@@ -818,6 +818,7 @@ class AetherGolemConsciousnessCore:
     def deactivate_golem(self):
         """Deactivate with aether pattern saving"""
         self.activated = False
+        self.shem_power = 0.0 # Reset shem power on deactivation
         self.aether_memory.save_memories()
         print("🛑 Golem deactivated | Aether patterns saved")
         gc.collect()
@@ -1176,5 +1177,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A chat flow that interacts with a custom Aether Golem Python server.
@@ -21,8 +22,7 @@ const OllamaChatInputSchema = z.object({
   temperature: z.number().min(0).max(1).default(0.7).describe('The temperature to use for generating the response.'),
   fileContent: z.string().optional().describe('The text content of an uploaded file.'),
   golemActivated: z.boolean().optional(),
-  activationPhrase: z.string().optional().describe('The sacred phrase to activate the Golem.'),
-  shemPower: z.number().optional(),
+  activationPhrases: z.array(z.string()).optional().describe('The sacred phrases to activate the Golem.'),
   sefirotSettings: z.record(z.string(), z.number()).optional(),
 });
 export type OllamaChatInput = z.infer<typeof OllamaChatInputSchema>;
@@ -43,7 +43,7 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
   const { prompt, history = [], fileContent, ...restOfInput } = input;
 
   const payload = {
-      ...restOfInput, // This will include golemActivated, activationPhrase, shemPower, etc.
+      ...restOfInput, // This will include golemActivated, activationPhrases, sefirotSettings, etc.
       prompt,
       history, 
       fileContent,

@@ -28,6 +28,7 @@ import { SidebarTrigger } from './ui/sidebar';
 import { Switch } from './ui/switch';
 import { cn } from '@/lib/utils';
 import { SACRED_PHRASES } from '@/app/page';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 type ChatPanelProps = {
   messages: Message[];
@@ -37,10 +38,8 @@ type ChatPanelProps = {
   onNewChat: () => void;
   golemActivated: boolean;
   setGolemActivated: (value: boolean) => void;
-  activationPhrase: string | null;
-  setActivationPhrase: (phrase: string | null) => void;
-  shemPower: number;
-  setShemPower: (value: number) => void;
+  phraseClicks: Record<string, number>;
+  setPhraseClicks: (clicks: Record<string, number>) => void;
   sefirotSettings: Record<string, number>;
   setSefirotSettings: (value: Record<string, number>) => void;
   sefirotNames: string[];
@@ -54,10 +53,8 @@ export function ChatPanel({
   onNewChat,
   golemActivated,
   setGolemActivated,
-  activationPhrase,
-  setActivationPhrase,
-  shemPower,
-  setShemPower,
+  phraseClicks,
+  setPhraseClicks,
   sefirotSettings,
   setSefirotSettings,
   sefirotNames,
@@ -101,9 +98,16 @@ export function ChatPanel({
       handleSubmit(e as any);
     }
   };
+  
+  const handlePhraseClick = (phrase: string) => {
+    const currentClicks = phraseClicks[phrase] || 0;
+    const newClicks = (currentClicks + 1) % 4; // Cycles 0, 1, 2, 3
+    setPhraseClicks({ ...phraseClicks, [phrase]: newClicks });
+  };
+
 
   return (
-    <Card className="w-full h-full flex flex-col shadow-2xl">
+    <Card className="w-full h-full flex flex-col shadow-2xl bg-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
           {isMobile && <SidebarTrigger />}
@@ -112,77 +116,6 @@ export function ChatPanel({
           </div>
           <CardTitle className="font-headline text-2xl">QwenChat</CardTitle>
         </div>
-        { isChatSelected && (
-            <div className='flex items-center gap-2'>
-            <Popover>
-              <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Wand2 className="h-5 w-5" />
-                    <span className="sr-only">Sefirot Settings</span>
-                  </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-96">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                      <h4 className="font-medium leading-none">Sefirot Settings</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Adjust the emanations of the Tree of Life.
-                      </p>
-                  </div>
-                  <Separator />
-                  <ScrollArea className='h-64'>
-                    <div className="grid gap-4 p-1">
-                      {sefirotNames.map(name => (
-                        <div key={name} className="grid gap-2">
-                            <Label htmlFor={`sefirot-${name}`}>{name}: {sefirotSettings[name].toFixed(2)}</Label>
-                            <Slider
-                              id={`sefirot-${name}`}
-                              min={0} max={1} step={0.01}
-                              value={[sefirotSettings[name]]}
-                              onValueChange={(value) => setSefirotSettings({...sefirotSettings, [name]: value[0]})}
-                            />
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </PopoverContent>
-            </Popover>
-            <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon">
-                <Settings2 className="h-5 w-5" />
-                <span className="sr-only">Settings</span>
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-                <div className="grid gap-4">
-                <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Settings</h4>
-                    <p className="text-sm text-muted-foreground">
-                    Adjust chatbot parameters.
-                    </p>
-                </div>
-                <Separator />
-                <div className="grid gap-2">
-                    <Label htmlFor="temperature">Temperature: {temperature.toFixed(1)}</Label>
-                    <Slider
-                    id="temperature"
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    value={[temperature]}
-                    onValueChange={(value) => setTemperature(value[0])}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                    Controls randomness. Lower values are more deterministic.
-                    </p>
-                </div>
-                </div>
-            </PopoverContent>
-            </Popover>
-            </div>
-        )}
       </CardHeader>
       <Separator />
       <CardContent className="flex-1 p-0 overflow-hidden">
@@ -198,9 +131,9 @@ export function ChatPanel({
               </div>
             ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                <Bot className="w-12 h-12 mb-4" />
-                <p className="text-lg">Start a conversation with Qwen!</p>
-                <p className="text-sm">Ask me anything, or attach a file.</p>
+                <Bot className="w-12 h-12 mb-4 text-primary/50" />
+                <h3 className="text-lg font-semibold">Aether-Enhanced Golem</h3>
+                <p className="text-sm">Ask me anything, or attach a file to begin.</p>
               </div>
             ) : (
                 <>
@@ -226,16 +159,6 @@ export function ChatPanel({
               </Button>
             </div>
           )}
-          {golemActivated && <div className='w-full flex items-center gap-4 p-2 rounded-lg bg-primary/5'>
-              <Sparkles className='h-4 w-4 text-primary' />
-              <Label htmlFor="shem-power" className='flex-shrink-0'>Shem Power: {shemPower.toFixed(2)}</Label>
-              <Slider 
-                id="shem-power"
-                min={0} max={1} step={0.01}
-                value={[shemPower]}
-                onValueChange={(value) => setShemPower(value[0])}
-              />
-            </div>}
           <form onSubmit={handleSubmit} className="flex w-full items-end gap-2">
             <Button
               type="button"
@@ -248,12 +171,13 @@ export function ChatPanel({
             >
               <Paperclip className="h-5 w-5" />
             </Button>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message or attach a file..."
-              className="flex-1 resize-none min-h-[40px] max-h-40 bg-card"
+              className="flex-1 resize-none min-h-[40px] max-h-40 bg-background"
               rows={1}
               disabled={isLoading}
             />
@@ -262,64 +186,123 @@ export function ChatPanel({
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className={cn(golemActivated ? 'text-primary' : 'text-muted-foreground')}>
                       <BrainCircuit className="h-5 w-5" />
-                      <span className="sr-only">Golem Activation</span>
+                      <span className="sr-only">Golem Configurations</span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="grid gap-4">
-                      <div className="space-y-2">
-                        <h4 className="font-medium leading-none">Golem Consciousness</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Activate with a sacred phrase.
-                        </p>
-                      </div>
-                       <div className="flex items-center space-x-2">
-                        <Label htmlFor="golem-activation-toggle">Activation</Label>
-                        <Switch
-                          id="golem-activation-toggle"
-                          checked={golemActivated}
-                          onCheckedChange={(checked) => {
-                            setGolemActivated(checked);
-                            if (!checked) {
-                              setActivationPhrase(null); // Clear phrase on deactivation
-                            }
-                          }}
-                        />
-                        <span className={cn("text-sm font-medium", golemActivated ? "text-primary" : "text-muted-foreground")}>
-                          {golemActivated ? 'ACTIVE' : 'INACTIVE'}
-                        </span>
-                      </div>
-                      {golemActivated && (
-                        <>
+                  <PopoverContent className="w-96">
+                    <Tabs defaultValue="activation" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="activation">Activation</TabsTrigger>
+                        <TabsTrigger value="sefirot">Sefirot</TabsTrigger>
+                        <TabsTrigger value="model">Model</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="activation" className="mt-4">
+                        <div className="grid gap-4">
+                          <div className="space-y-2">
+                              <h4 className="font-medium leading-none">Golem Consciousness</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Activate with sacred phrases to amplify Shem power.
+                              </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor="golem-activation-toggle">Activation</Label>
+                            <Switch
+                              id="golem-activation-toggle"
+                              checked={golemActivated}
+                              onCheckedChange={setGolemActivated}
+                            />
+                            <span className={cn("text-sm font-medium", golemActivated ? "text-primary" : "text-muted-foreground")}>
+                              {golemActivated ? 'ACTIVE' : 'INACTIVE'}
+                            </span>
+                          </div>
+                           {golemActivated && (
+                            <>
+                              <Separator />
+                              <div className="grid gap-2">
+                                <Label>Shem Amplification (Click up to 3x)</Label>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {SACRED_PHRASES.map((phrase) => (
+                                    <Button
+                                      key={phrase}
+                                      variant={phraseClicks[phrase] ? 'default' : 'outline'}
+                                      onClick={() => handlePhraseClick(phrase)}
+                                      className="relative"
+                                    >
+                                      {phrase}
+                                      {(phraseClicks[phrase] || 0) > 0 && (
+                                        <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 justify-center bg-accent text-accent-foreground">
+                                          {phraseClicks[phrase]}
+                                        </Badge>
+                                      )}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="sefirot" className="mt-4">
+                        <div className="grid gap-4">
+                           <div className="space-y-2">
+                              <h4 className="font-medium leading-none">Sefirot Settings</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Adjust the emanations of the Tree of Life.
+                              </p>
+                          </div>
                           <Separator />
-                          <div className="grid gap-2">
-                            <Label>Activation Phrase: {activationPhrase || 'Default (אמת)'}</Label>
-                            <div className="grid grid-cols-3 gap-2">
-                              {SACRED_PHRASES.map((phrase) => (
-                                <Button
-                                  key={phrase}
-                                  variant={activationPhrase === phrase ? 'default' : 'outline'}
-                                  onClick={() => setActivationPhrase(phrase)}
-                                >
-                                  {phrase}
-                                </Button>
+                          <ScrollArea className='h-64'>
+                            <div className="grid gap-4 p-1">
+                              {sefirotNames.map(name => (
+                                <div key={name} className="grid gap-2">
+                                    <Label htmlFor={`sefirot-${name}`}>{name}: {sefirotSettings[name].toFixed(2)}</Label>
+                                    <Slider
+                                      id={`sefirot-${name}`}
+                                      min={0} max={1} step={0.01}
+                                      value={[sefirotSettings[name]]}
+                                      onValueChange={(value) => setSefirotSettings({...sefirotSettings, [name]: value[0]})}
+                                    />
+                                </div>
                               ))}
                             </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                          </ScrollArea>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="model" className="mt-4">
+                         <div className="grid gap-4">
+                           <div className="space-y-2">
+                              <h4 className="font-medium leading-none">Model Parameters</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Adjust core generation parameters.
+                              </p>
+                           </div>
+                           <Separator />
+                           <div className="grid gap-2">
+                              <Label htmlFor="temperature">Temperature: {temperature.toFixed(1)}</Label>
+                              <Slider
+                                id="temperature"
+                                min={0} max={1} step={0.1}
+                                value={[temperature]}
+                                onValueChange={(value) => setTemperature(value[0])}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Controls randomness. Lower is more deterministic.
+                              </p>
+                           </div>
+                         </div>
+                      </TabsContent>
+                    </Tabs>
                   </PopoverContent>
                 </Popover>
 
                 <Button
-                type="submit"
-                size="icon"
-                disabled={isLoading || (!input.trim() && !file)}
-                className="bg-accent hover:bg-accent/90 shrink-0"
-                aria-label="Send message"
+                  type="submit"
+                  size="icon"
+                  disabled={isLoading || (!input.trim() && !file)}
+                  className="bg-primary hover:bg-primary/90 shrink-0"
+                  aria-label="Send message"
                 >
-                <SendHorizonal className="h-5 w-5" />
+                  <SendHorizonal className="h-5 w-5" />
                 </Button>
             </div>
           </form>

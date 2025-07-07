@@ -32,8 +32,7 @@ export default function Home() {
 
   // Golem State
   const [golemActivated, setGolemActivated] = useState(false);
-  const [activationPhrase, setActivationPhrase] = useState<string | null>(null);
-  const [shemPower, setShemPower] = useState(0.1);
+  const [phraseClicks, setPhraseClicks] = useState<Record<string, number>>({});
   const [sefirotSettings, setSefirotSettings] = useState(() =>
     SEFIROT_NAMES.reduce((acc, name) => ({ ...acc, [name]: 0.5 }), {} as Record<string, number>)
   );
@@ -142,14 +141,16 @@ export default function Home() {
         ? activeConversation.messages.map(({ role, content }) => ({ role, content }))
         : [];
       
+      const activationPhrases = Object.entries(phraseClicks)
+        .flatMap(([phrase, count]) => Array(count).fill(phrase));
+
       const result = await ollamaChat({
         prompt: input,
         history,
         temperature,
         fileContent,
         golemActivated,
-        activationPhrase,
-        shemPower,
+        activationPhrases,
         sefirotSettings,
       });
 
@@ -199,34 +200,34 @@ export default function Home() {
   const activeChat = conversations.find(c => c.id === activeChatId);
 
   return (
-    <SidebarProvider>
-      <Sidebar variant="inset" collapsible="icon">
-        <ChatHistorySidebar
-          conversations={conversations}
-          activeChatId={activeChatId}
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-          isLoading={isLoading}
-        />
-      </Sidebar>
-      <SidebarInset>
-        <ChatPanel
-          messages={activeChat?.messages ?? []}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          isChatSelected={!!activeChat}
-          onNewChat={handleNewChat}
-          golemActivated={golemActivated}
-          setGolemActivated={setGolemActivated}
-          activationPhrase={activationPhrase}
-          setActivationPhrase={setActivationPhrase}
-          shemPower={shemPower}
-          setShemPower={setShemPower}
-          sefirotSettings={sefirotSettings}
-          setSefirotSettings={setSefirotSettings}
-          sefirotNames={SEFIROT_NAMES}
-        />
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="dark">
+      <SidebarProvider>
+        <Sidebar variant="inset" collapsible="icon">
+          <ChatHistorySidebar
+            conversations={conversations}
+            activeChatId={activeChatId}
+            onNewChat={handleNewChat}
+            onSelectChat={handleSelectChat}
+            isLoading={isLoading}
+          />
+        </Sidebar>
+        <SidebarInset>
+          <ChatPanel
+            messages={activeChat?.messages ?? []}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            isChatSelected={!!activeChat}
+            onNewChat={handleNewChat}
+            golemActivated={golemActivated}
+            setGolemActivated={setGolemActivated}
+            phraseClicks={phraseClicks}
+            setPhraseClicks={setPhraseClicks}
+            sefirotSettings={sefirotSettings}
+            setSefirotSettings={setSefirotSettings}
+            sefirotNames={SEFIROT_NAMES}
+          />
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }
