@@ -21,6 +21,8 @@ const SEFIROT_NAMES = [
   'Tiferet', 'Netzach', 'Hod', 'Yesod', 'Malkuth'
 ];
 
+export const SACRED_PHRASES = ["אמת", "חיים", "אור", "חכמה", "בינה", "דעת"];
+
 export default function Home() {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -30,6 +32,7 @@ export default function Home() {
 
   // Golem State
   const [golemActivated, setGolemActivated] = useState(false);
+  const [activationPhrase, setActivationPhrase] = useState<string | null>(null);
   const [shemPower, setShemPower] = useState(0.1);
   const [sefirotSettings, setSefirotSettings] = useState(() =>
     SEFIROT_NAMES.reduce((acc, name) => ({ ...acc, [name]: 0.5 }), {} as Record<string, number>)
@@ -145,6 +148,7 @@ export default function Home() {
         temperature,
         fileContent,
         golemActivated,
+        activationPhrase,
         shemPower,
         sefirotSettings,
       });
@@ -214,6 +218,8 @@ export default function Home() {
           onNewChat={handleNewChat}
           golemActivated={golemActivated}
           setGolemActivated={setGolemActivated}
+          activationPhrase={activationPhrase}
+          setActivationPhrase={setActivationPhrase}
           shemPower={shemPower}
           setShemPower={setShemPower}
           sefirotSettings={sefirotSettings}

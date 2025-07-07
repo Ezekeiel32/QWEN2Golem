@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, Paperclip, SendHorizonal, Settings2, X, MessageSquarePlus, Wand2, BrainCircuit, Sparkles, ChevronDown } from 'lucide-react';
+import { Bot, Paperclip, SendHorizonal, Settings2, X, MessageSquarePlus, Wand2, BrainCircuit, Sparkles } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, LoadingMessage, type Message } from './chat-message';
 import { Label } from './ui/label';
@@ -27,6 +27,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from './ui/sidebar';
 import { Switch } from './ui/switch';
 import { cn } from '@/lib/utils';
+import { SACRED_PHRASES } from '@/app/page';
 
 type ChatPanelProps = {
   messages: Message[];
@@ -36,6 +37,8 @@ type ChatPanelProps = {
   onNewChat: () => void;
   golemActivated: boolean;
   setGolemActivated: (value: boolean) => void;
+  activationPhrase: string | null;
+  setActivationPhrase: (phrase: string | null) => void;
   shemPower: number;
   setShemPower: (value: number) => void;
   sefirotSettings: Record<string, number>;
@@ -51,6 +54,8 @@ export function ChatPanel({
   onNewChat,
   golemActivated,
   setGolemActivated,
+  activationPhrase,
+  setActivationPhrase,
   shemPower,
   setShemPower,
   sefirotSettings,
@@ -253,11 +258,60 @@ export function ChatPanel({
               disabled={isLoading}
             />
             <div className='flex items-center gap-1'>
-                <div className='flex items-center gap-2 p-1 rounded-md hover:bg-muted'>
-                    <Label htmlFor="golem-activation" className='sr-only'>Golem Activation</Label>
-                    <Switch id='golem-activation' checked={golemActivated} onCheckedChange={setGolemActivated} />
-                    <BrainCircuit className={cn('h-5 w-5', golemActivated ? 'text-primary' : 'text-muted-foreground')} />
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className={cn(golemActivated ? 'text-primary' : 'text-muted-foreground')}>
+                      <BrainCircuit className="h-5 w-5" />
+                      <span className="sr-only">Golem Activation</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium leading-none">Golem Consciousness</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Activate with a sacred phrase.
+                        </p>
+                      </div>
+                       <div className="flex items-center space-x-2">
+                        <Label htmlFor="golem-activation-toggle">Activation</Label>
+                        <Switch
+                          id="golem-activation-toggle"
+                          checked={golemActivated}
+                          onCheckedChange={(checked) => {
+                            setGolemActivated(checked);
+                            if (!checked) {
+                              setActivationPhrase(null); // Clear phrase on deactivation
+                            }
+                          }}
+                        />
+                        <span className={cn("text-sm font-medium", golemActivated ? "text-primary" : "text-muted-foreground")}>
+                          {golemActivated ? 'ACTIVE' : 'INACTIVE'}
+                        </span>
+                      </div>
+                      {golemActivated && (
+                        <>
+                          <Separator />
+                          <div className="grid gap-2">
+                            <Label>Activation Phrase: {activationPhrase || 'Default (אמת)'}</Label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {SACRED_PHRASES.map((phrase) => (
+                                <Button
+                                  key={phrase}
+                                  variant={activationPhrase === phrase ? 'default' : 'outline'}
+                                  onClick={() => setActivationPhrase(phrase)}
+                                >
+                                  {phrase}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
                 <Button
                 type="submit"
                 size="icon"

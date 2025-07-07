@@ -21,6 +21,7 @@ const OllamaChatInputSchema = z.object({
   temperature: z.number().min(0).max(1).default(0.7).describe('The temperature to use for generating the response.'),
   fileContent: z.string().optional().describe('The text content of an uploaded file.'),
   golemActivated: z.boolean().optional(),
+  activationPhrase: z.string().optional().describe('The sacred phrase to activate the Golem.'),
   shemPower: z.number().optional(),
   sefirotSettings: z.record(z.string(), z.number()).optional(),
 });
@@ -38,25 +39,19 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
   // When your ngrok URL changes, you will need to update it here.
   const golemUrl = "https://9556-2a0d-6fc2-6800-6600-390b-5bea-4875-a81d.ngrok-free.app";
   
-  // The Python Golem server expects the full context in the prompt, not as a history array.
-  // We'll construct a single prompt string.
+  // We construct the payload, passing all the golem control parameters from the UI.
   const { prompt, history = [], fileContent, ...restOfInput } = input;
 
-  // The Python script handles constructing the full prompt with the Aether matrix,
-  // so we can just send the raw inputs.
   const payload = {
-      ...restOfInput,
+      ...restOfInput, // This will include golemActivated, activationPhrase, shemPower, etc.
       prompt,
-      history, // The Python script might not use this, but we send it for completeness.
+      history, 
       fileContent,
       temperature: input.temperature,
-      golemActivated: input.golemActivated,
-      shemPower: input.shemPower,
-      sefirotSettings: input.sefirotSettings,
   };
   
   try {
-    // We append the /generate endpoint here to make the .env variable cleaner.
+    // We append the /generate endpoint here to make the URL cleaner.
     const response = await fetch(`${golemUrl}/generate`, {
       method: 'POST',
       headers: {
