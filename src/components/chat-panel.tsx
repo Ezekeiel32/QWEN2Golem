@@ -74,7 +74,7 @@ export function ChatPanel({
         behavior: 'smooth',
       });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -111,7 +111,7 @@ export function ChatPanel({
 
   return (
     <Card className="w-full h-screen flex flex-col shadow-2xl bg-card">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between p-4">
         <div className="flex items-center gap-3">
           {isMobile && <SidebarTrigger />}
           <div className="p-2 bg-primary/10 rounded-full">
