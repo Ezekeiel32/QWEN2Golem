@@ -41,26 +41,17 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
     );
   }
   
-  // To support conversation history, we construct a single string prompt for the Golem server,
-  // just like the previous flow did for Ollama.
+  // The Python Golem server expects the full context in the prompt, not as a history array.
+  // We'll construct a single prompt string.
   const { prompt, history = [], fileContent, ...restOfInput } = input;
 
-  let fullPrompt = 'You are a helpful chatbot assistant. You must answer questions based on the provided conversation history and any attached file content.\n\n';
-
-  history.forEach(message => {
-      const role = message.role === 'user' ? 'User' : 'Assistant';
-      fullPrompt += `${role}: ${message.content}\n`;
-  });
-  
-  if (fileContent) {
-    fullPrompt += `\n\nBase your answer on the following file content:\n\n---\n${fileContent}\n---`;
-  }
-  
-  fullPrompt += `\n\nUser: ${prompt}\nAssistant:`;
-
+  // The Python script handles constructing the full prompt with the Aether matrix,
+  // so we can just send the raw inputs.
   const payload = {
       ...restOfInput,
-      prompt: fullPrompt, // Send the constructed full prompt
+      prompt,
+      history, // The Python script might not use this, but we send it for completeness.
+      fileContent,
       temperature: input.temperature,
       golemActivated: input.golemActivated,
       shemPower: input.shemPower,
@@ -68,7 +59,8 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
   };
   
   try {
-    const response = await fetch(golemUrl, {
+    // We append the /generate endpoint here to make the .env variable cleaner.
+    const response = await fetch(`${golemUrl}/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +84,8 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
 
     return {
       response: golemResponse.response,
-      golemStats: golemResponse, // Return the full response as stats
+      // The python script returns the full response object which contains the stats we want.
+      golemStats: golemResponse, 
     };
   } catch (error) {
     console.error('Error calling Golem server:', error);
