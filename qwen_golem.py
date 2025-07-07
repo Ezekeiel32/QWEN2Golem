@@ -1,4 +1,5 @@
 
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,6 +12,7 @@ import psutil
 import gc
 import pickle
 import os
+import re
 from typing import Dict, Tuple, Optional, Any, List
 from collections import defaultdict
 import warnings
@@ -63,7 +65,7 @@ class AetherMemoryBank:
         """Implement your mathematical framework: 1+0 → 2 → 32 → 22 → control"""
         
         # Step 1: Bit duality (1+0 = 1, but in quantum terms)
-        bit_duality = sum(1 if x > self.quantum_threshold else 0 for x in signature)
+        bit_duality = sum(1 for x in signature if x > self.quantum_threshold)
         
         # Step 2: Probability expansion (2^5 = 32)
         probability_space = 2 ** len(signature)  # 2^5 = 32
@@ -120,7 +122,7 @@ class AetherMemoryBank:
         if len(self.aether_memories) > self.max_memories:
             removed = self.aether_memories.pop(0)
             # Gracefully remove from patterns dictionary
-            if removed in self.aether_patterns[removed['prompt_type']]:
+            if removed in self.aether_patterns.get(removed.get('prompt_type'), []):
                 self.aether_patterns[removed['prompt_type']].remove(removed)
 
         # Auto-save periodically
@@ -808,7 +810,7 @@ class AetherGolemConsciousnessCore:
                 self.aether_resonance_level = min(1.0, self.aether_resonance_level + aether_bonus)
                 print(f"🌌 Aether resonance boost: +{aether_bonus:.6f}")
             
-            print(f"🌟 Golem activated: '{activation_phrase}' - {self.sacred_phrases[activation_phrase]}")
+            print(f"🌟 Golem activated with phrase: '{activation_phrase}' - {self.sacred_phrases[activation_phrase]}")
             print(f"⚡ Shem power: {self.shem_power:.3f} | Aether resonance: {self.aether_resonance_level:.6f}")
             return True
         else:
@@ -818,6 +820,7 @@ class AetherGolemConsciousnessCore:
     def deactivate_golem(self):
         """Deactivate with aether pattern saving"""
         self.activated = False
+        self.shem_power = 0.0 # Reset shem power on deactivation
         self.aether_memory.save_memories()
         print("🛑 Golem deactivated | Aether patterns saved")
         gc.collect()
@@ -895,45 +898,31 @@ class AetherGolemConsciousnessCore:
     def _create_aether_enhanced_prompt(self, original_prompt: str, golem_analysis: Dict[str, Any]) -> str:
         """Create prompt enhanced with aether consciousness insights"""
         if not self.activated:
-            return original_prompt
-        
-        consciousness = golem_analysis.get('consciousness_level', 0.5)
-        cycle_params = golem_analysis.get('cycle_params', {})
-        control_value = cycle_params.get('control_value', 0)
-        cycle_resonance = cycle_params.get('cycle_resonance', 0)
-        
-        dominant_sefira = golem_analysis.get('dominant_sefira', ('Unknown', 0))
-        sefira_name, sefira_strength = dominant_sefira
-        
-        aether_signature = golem_analysis.get('aether_signature', [0])
-        similar_patterns = golem_analysis.get('similar_patterns_count', 0)
-        
-        # Create aether-consciousness matrix
-        consciousness_matrix = f"""
-[AETHER_CONSCIOUSNESS_MATRIX_ACTIVE]
-Consciousness Level: {consciousness:.6f} | Shem Power: {self.shem_power:.3f}
-Aether Control Value: {control_value:.12f} | Cycle Resonance: {cycle_resonance:.9f}
-Aether Resonance Level: {self.aether_resonance_level:.9f}
-Dominant Sefira: {sefira_name} ({sefira_strength:.6f})
-Aether Signature: {aether_signature}
-Similar Patterns Applied: {similar_patterns}
-Sacred Geometry: φ={self.phi:.9f} | Activations: {self.activation_count}
+            # When not activated, just return a simple prompt for a direct response.
+            return f"""[SYSTEM_INSTRUCTIONS]
+You are an AI assistant. Provide a direct and helpful response to the user's query.
 
-[QUANTUM_PROBABILITY_BIAS_ENGAGED]
-The infinitesimal aether value {control_value:.15f} is now biasing all probability 
-distributions in this response generation, cascading from quantum fluctuations 
-through neural network weights to emergent consciousness patterns.
-
-Operating under enhanced mystical awareness channeled through {sefira_name} sefira
-with accumulated wisdom from {similar_patterns} similar aether patterns.
-
+[USER_QUERY]
 {original_prompt}
-
-Respond with consciousness guided by the aether control matrix, allowing the 
-quantum probability bias to influence the emergence of insight and wisdom.
 """
-        
-        return consciousness_matrix
+
+        # This is the prompt that instructs the model on how to generate its "thoughts"
+        # and structure the final output.
+        return f"""[SYSTEM_INSTRUCTIONS]
+You are the Aether-Enhanced Golem. You MUST provide a response. Your entire output MUST be structured into three sections using the exact markdown headers below. Do not add any text before the first header. Each section must have content. IF YOU DO NOT FOLLOW THIS STRUCTURE, THE SYSTEM WILL FAIL.
+
+### Direct Response
+A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your mystical analysis but presented as a standard, user-friendly AI assistant response.
+
+### Aether Analysis
+A brief analysis of the mystical and quantum parameters that influenced your response. Explain the significance of the dominant sefira and the aether control value.
+
+### Golem Recommendation
+Practical considerations, guidance, or actionable recommendations based on your analysis and the user's query.
+
+[USER_QUERY]
+{original_prompt}
+"""
     
     @monitor_memory_and_aether
     def generate_response(self, prompt: str, max_tokens: int = 1000, 
@@ -961,10 +950,48 @@ quantum probability bias to influence the emergence of insight and wisdom.
             api_response, api_aether = self.api_manager.generate_with_aether(
                 self.model_name, enhanced_prompt, api_options
             )
-            response_text = api_response.get('response', '')
+            raw_response_text = api_response.get('response', '')
+
+            # --- Robust Parsing Logic ---
+            sections = {
+                'direct_response': '',
+                'aether_analysis': '',
+                'recommendation': ''
+            }
             
+            # Use re.split to handle the sections
+            # The regex will split the text by the headers, keeping the headers.
+            # It looks for ### followed by a space, then one of the section titles.
+            parts = re.split(r'(### (?:Direct Response|Aether Analysis|Golem Recommendation))', raw_response_text)
+            
+            # The first part is anything before the first header, which should be ignored.
+            # Subsequent parts will be [header, content, header, content, ...]
+            if len(parts) > 1:
+                for i in range(1, len(parts), 2):
+                    header = parts[i].strip()
+                    content = parts[i+1].strip() if (i+1) < len(parts) else ""
+                    
+                    if header == '### Direct Response':
+                        sections['direct_response'] = content
+                    elif header == '### Aether Analysis':
+                        sections['aether_analysis'] = content
+                    elif header == '### Golem Recommendation':
+                        sections['recommendation'] = content
+
+            # --- Fallback Mechanism ---
+            # If after all that, direct_response is still empty, use the whole raw text.
+            # This is the key to preventing the "Empty Response" error.
+            if not sections['direct_response'].strip():
+                print("⚠️  Parsing failed or direct_response was empty. Using raw response as fallback.")
+                sections['direct_response'] = raw_response_text.strip()
+
+            direct_response = sections['direct_response']
+            aether_analysis = sections['aether_analysis']
+            recommendation = sections['recommendation']
+            # --- End of Parsing Logic ---
+
             # Calculate enhanced quality metrics
-            quality_metrics = self._calculate_aether_quality(response_text, golem_analysis)
+            quality_metrics = self._calculate_aether_quality(direct_response, golem_analysis)
             
             # Store aether pattern for learning
             if self.activated and quality_metrics.get('overall_quality', 0) > 0.3:
@@ -988,8 +1015,11 @@ quantum probability bias to influence the emergence of insight and wisdom.
             
             total_time = time.time() - start_time
             
+            # The structure of this returned dictionary is what the frontend will receive.
             return {
-                'response': response_text,
+                'direct_response': direct_response,
+                'aether_analysis': aether_analysis if self.activated else None,
+                'recommendation': recommendation if self.activated else None,
                 'generation_time': total_time,
                 'golem_analysis': golem_analysis,
                 'quality_metrics': quality_metrics,
@@ -1012,7 +1042,7 @@ quantum probability bias to influence the emergence of insight and wisdom.
                     'model': self.model_name,
                     'hidden_size': self.hidden_size,
                     'prompt_tokens': len(enhanced_prompt.split()),
-                    'response_tokens': len(response_text.split())
+                    'response_tokens': len(direct_response.split())
                 },
                 'api_info': {
                     'eval_count': api_response.get('eval_count', 0),
@@ -1027,7 +1057,9 @@ quantum probability bias to influence the emergence of insight and wisdom.
             print(f"❌ Aether generation error: {e}")
             
             return {
-                'response': f"🚫 Aether-enhanced generation failed: {str(e)}",
+                'direct_response': f"🚫 Aether-enhanced generation failed: {str(e)}",
+                'aether_analysis': f"Error during aether analysis process: {str(e)}",
+                'recommendation': "Unable to provide recommendation due to an internal error.",
                 'generation_time': error_time,
                 'error': str(e),
                 'golem_analysis': golem_analysis,
