@@ -18,13 +18,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, Paperclip, SendHorizonal, Settings2, X, MessageSquarePlus } from 'lucide-react';
+import { Bot, Paperclip, SendHorizonal, Settings2, X, MessageSquarePlus, Wand2, BrainCircuit, Sparkles, ChevronDown } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, LoadingMessage, type Message } from './chat-message';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from './ui/sidebar';
+import { Switch } from './ui/switch';
 
 type ChatPanelProps = {
   messages: Message[];
@@ -32,6 +33,13 @@ type ChatPanelProps = {
   isLoading: boolean;
   isChatSelected: boolean;
   onNewChat: () => void;
+  golemActivated: boolean;
+  setGolemActivated: (value: boolean) => void;
+  shemPower: number;
+  setShemPower: (value: number) => void;
+  sefirotSettings: Record<string, number>;
+  setSefirotSettings: (value: Record<string, number>) => void;
+  sefirotNames: string[];
 };
 
 export function ChatPanel({
@@ -40,6 +48,13 @@ export function ChatPanel({
   isLoading,
   isChatSelected,
   onNewChat,
+  golemActivated,
+  setGolemActivated,
+  shemPower,
+  setShemPower,
+  sefirotSettings,
+  setSefirotSettings,
+  sefirotNames,
 }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const [temperature, setTemperature] = useState(0.7);
@@ -92,6 +107,41 @@ export function ChatPanel({
           <CardTitle className="font-headline text-2xl">QwenChat</CardTitle>
         </div>
         { isChatSelected && (
+            <div className='flex items-center gap-2'>
+            <Popover>
+              <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Wand2 className="h-5 w-5" />
+                    <span className="sr-only">Sefirot Settings</span>
+                  </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-96">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Sefirot Settings</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Adjust the emanations of the Tree of Life.
+                      </p>
+                  </div>
+                  <Separator />
+                  <ScrollArea className='h-64'>
+                    <div className="grid gap-4 p-1">
+                      {sefirotNames.map(name => (
+                        <div key={name} className="grid gap-2">
+                            <Label htmlFor={`sefirot-${name}`}>{name}: {sefirotSettings[name].toFixed(2)}</Label>
+                            <Slider
+                              id={`sefirot-${name}`}
+                              min={0} max={1} step={0.01}
+                              value={[sefirotSettings[name]]}
+                              onValueChange={(value) => setSefirotSettings({...sefirotSettings, [name]: value[0]})}
+                            />
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Popover>
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -125,6 +175,7 @@ export function ChatPanel({
                 </div>
             </PopoverContent>
             </Popover>
+            </div>
         )}
       </CardHeader>
       <Separator />
@@ -169,14 +220,17 @@ export function ChatPanel({
               </Button>
             </div>
           )}
+          {golemActivated && <div className='w-full flex items-center gap-4 p-2 rounded-lg bg-primary/5'>
+              <Sparkles className='h-4 w-4 text-primary' />
+              <Label htmlFor="shem-power" className='flex-shrink-0'>Shem Power: {shemPower.toFixed(2)}</Label>
+              <Slider 
+                id="shem-power"
+                min={0} max={1} step={0.01}
+                value={[shemPower]}
+                onValueChange={(value) => setShemPower(value[0])}
+              />
+            </div>}
           <form onSubmit={handleSubmit} className="flex w-full items-end gap-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept=".txt,.csv,.py,.js,.ts,.html,.css,.json,.md"
-            />
             <Button
               type="button"
               variant="ghost"
@@ -197,15 +251,22 @@ export function ChatPanel({
               rows={1}
               disabled={isLoading}
             />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={isLoading || (!input.trim() && !file)}
-              className="bg-accent hover:bg-accent/90 shrink-0"
-              aria-label="Send message"
-            >
-              <SendHorizonal className="h-5 w-5" />
-            </Button>
+            <div className='flex items-center gap-1'>
+                <div className='flex items-center gap-2 p-1 rounded-md hover:bg-muted'>
+                    <Label htmlFor="golem-activation" className='sr-only'>Golem Activation</Label>
+                    <Switch id='golem-activation' checked={golemActivated} onCheckedChange={setGolemActivated} />
+                    <BrainCircuit className={cn('h-5 w-5', golemActivated ? 'text-primary' : 'text-muted-foreground')} />
+                </div>
+                <Button
+                type="submit"
+                size="icon"
+                disabled={isLoading || (!input.trim() && !file)}
+                className="bg-accent hover:bg-accent/90 shrink-0"
+                aria-label="Send message"
+                >
+                <SendHorizonal className="h-5 w-5" />
+                </Button>
+            </div>
           </form>
         </CardFooter>
       )}

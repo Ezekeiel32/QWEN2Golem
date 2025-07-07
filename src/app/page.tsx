@@ -16,12 +16,24 @@ export type Conversation = {
   messages: Message[];
 };
 
+const SEFIROT_NAMES = [
+  'Keter', 'Chokhmah', 'Binah', 'Chesed', 'Gevurah', 
+  'Tiferet', 'Netzach', 'Hod', 'Yesod', 'Malkuth'
+];
+
 export default function Home() {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Golem State
+  const [golemActivated, setGolemActivated] = useState(false);
+  const [shemPower, setShemPower] = useState(0.1);
+  const [sefirotSettings, setSefirotSettings] = useState(() =>
+    SEFIROT_NAMES.reduce((acc, name) => ({ ...acc, [name]: 0.5 }), {} as Record<string, number>)
+  );
 
   useEffect(() => {
     try {
@@ -108,6 +120,8 @@ export default function Home() {
       ...(file && { file: { name: file.name } })
     };
 
+    const originalConversations = JSON.parse(JSON.stringify(conversations));
+
     setConversations(prev =>
       prev.map(convo => {
         if (convo.id === activeChatId) {
@@ -130,12 +144,16 @@ export default function Home() {
         history,
         temperature,
         fileContent,
+        golemActivated,
+        shemPower,
+        sefirotSettings,
       });
 
       if (result.response) {
         const assistantMessage: Message = {
           role: 'assistant',
           content: result.response,
+          golemStats: result.golemStats,
         };
         setConversations(prev =>
           prev.map(convo =>
@@ -153,18 +171,22 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error calling ollamaChat:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to get a response from the AI. Please try again.',
-      });
-      setConversations(prev =>
-        prev.map(convo =>
-          convo.id === activeChatId
-            ? { ...convo, messages: convo.messages.slice(0, -1) }
-            : convo
-        )
-      );
+       setConversations(originalConversations);
+       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+       
+       if (errorMessage.includes("502")) {
+         toast({
+           variant: 'destructive',
+           title: 'Connection Error (502)',
+           description: "Could not connect to the Ollama server. Please ensure it's running and the ngrok tunnel is correctly configured.",
+         });
+       } else {
+         toast({
+           variant: 'destructive',
+           title: 'Error',
+           description: 'Failed to get a response from the AI. Please try again.',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -190,6 +212,13 @@ export default function Home() {
           isLoading={isLoading}
           isChatSelected={!!activeChat}
           onNewChat={handleNewChat}
+          golemActivated={golemActivated}
+          setGolemActivated={setGolemActivated}
+          shemPower={shemPower}
+          setShemPower={setShemPower}
+          sefirotSettings={sefirotSettings}
+          setSefirotSettings={setSefirotSettings}
+          sefirotNames={SEFIROT_NAMES}
         />
       </SidebarInset>
     </SidebarProvider>
