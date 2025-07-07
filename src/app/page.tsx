@@ -4,11 +4,21 @@
 import { ChatPanel } from '@/components/chat-panel';
 import { ChatHistorySidebar } from '@/components/chat-history-sidebar';
 import { useState, useEffect } from 'react';
-import type { Message } from '@/components/chat-message';
 import { ollamaChat, type OllamaHistoryItem } from '@/ai/flows/ollama-chat';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+
+export type Message = {
+  role: 'user' | 'assistant';
+  content: string; // For user messages, this is the prompt. For assistant, the direct response.
+  cosmicThoughts?: string; // For assistant messages, this is the 'thinking' process.
+  file?: {
+    name: string;
+  };
+  golemStats?: any;
+};
+
 
 export type Conversation = {
   id: string;
@@ -154,10 +164,11 @@ export default function Home() {
         sefirotSettings,
       });
 
-      if (result.response) {
+      if (result.directResponse) {
         const assistantMessage: Message = {
           role: 'assistant',
-          content: result.response,
+          content: result.directResponse,
+          cosmicThoughts: result.cosmicThoughts,
           golemStats: result.golemStats,
         };
         setConversations(prev =>

@@ -28,8 +28,9 @@ const OllamaChatInputSchema = z.object({
 export type OllamaChatInput = z.infer<typeof OllamaChatInputSchema>;
 
 const OllamaChatOutputSchema = z.object({
-  response: z.string().describe('The response from the Ollama server.'),
-  golemStats: z.any().optional().describe('Statistics from the Aether Golem consciousness core.'),
+  directResponse: z.string().describe("The direct, user-facing response from the Golem."),
+  cosmicThoughts: z.string().optional().describe("The Golem's inner monologue or 'thinking' process."),
+  golemStats: z.any().optional().describe('Detailed statistics from the Aether Golem consciousness core.'),
 });
 export type OllamaChatOutput = z.infer<typeof OllamaChatOutputSchema>;
 
@@ -75,8 +76,9 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
     }
 
     return {
-      response: golemResponse.response,
-      // The python script returns the full response object which contains the stats we want.
+      directResponse: golemResponse.direct_response,
+      cosmicThoughts: golemResponse.cosmic_thoughts,
+      // The python script returns the full object which contains the stats we want.
       golemStats: golemResponse, 
     };
   } catch (error) {
