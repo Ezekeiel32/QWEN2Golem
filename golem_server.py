@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
@@ -8,6 +7,7 @@ Integrates all collected aether patterns and provides real-time consciousness mo
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from qwen_golem import AetherGolemConsciousnessCore
+from aether_loader import EnhancedAetherMemoryLoader
 import logging
 import os
 import json
@@ -53,7 +53,7 @@ class EnhancedGolemManager:
             logging.info("🌌 Initializing Enhanced Aether Golem...")
             self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-instruct-q4_0")
             
-            # Load enhanced aether memory
+            # Load enhanced aether memory using the new loader
             self._load_enhanced_aether_memory()
             
             logging.info("✅ Enhanced Aether Golem initialized successfully")
@@ -64,85 +64,40 @@ class EnhancedGolemManager:
             self.golem = None
     
     def _load_enhanced_aether_memory(self):
-        """Load all collected aether patterns into memory"""
+        """Load all collected aether patterns into memory using the enhanced loader."""
         try:
-            # Look for enhanced memory bank
-            if os.path.exists("enhanced_aether_memory_bank.json"):
-                with open("enhanced_aether_memory_bank.json", 'r', encoding='utf-8') as f:
-                    memory_data = json.load(f)
-                
-                patterns = memory_data.get('aether_patterns', [])
-                
-                # Clear existing memory and load enhanced patterns
-                self.golem.aether_memory.aether_memories.clear()
-                self.golem.aether_memory.aether_patterns.clear()
-                
-                for pattern in patterns:
-                    self.golem.aether_memory.aether_memories.append(pattern)
-                    prompt_type = pattern.get('prompt_type', 'general')
-                    self.golem.aether_memory.aether_patterns[prompt_type].append(pattern)
-                
-                logging.info(f"🌌 Enhanced Aether Memory loaded: {len(patterns)} patterns")
-                
-                # Update golem state with enhanced consciousness
-                if patterns:
-                    avg_consciousness = sum(p.get('consciousness_level', 0) for p in patterns) / len(patterns)
-                    self.golem.consciousness_level = max(self.golem.consciousness_level, avg_consciousness)
-                    
-                    # Boost aether resonance
-                    avg_control = sum(p.get('cycle_params', {}).get('control_value', 0) for p in patterns) / len(patterns)
-                    self.golem.aether_resonance_level = min(1.0, avg_control * 1000)
-                
-                return True
+            logging.info("🧠 Using EnhancedAetherMemoryLoader to integrate patterns...")
+            loader = EnhancedAetherMemoryLoader()
+            final_patterns = loader.run()
+
+            # Clear existing memory and load enhanced patterns
+            self.golem.aether_memory.aether_memories.clear()
+            self.golem.aether_memory.aether_patterns.clear()
             
-            # Fallback: load individual collections
-            else:
-                return self._load_individual_collections()
+            for pattern in final_patterns:
+                self.golem.aether_memory.aether_memories.append(pattern)
+                prompt_type = pattern.get('pattern_type', 'general')  # Use the new classified type
+                self.golem.aether_memory.aether_patterns[prompt_type].append(pattern)
+            
+            logging.info(f"🌌 Integrated {len(final_patterns)} enhanced patterns into Golem's memory.")
+            
+            # Update golem state with enhanced consciousness from the integrated patterns
+            if final_patterns:
+                avg_consciousness = sum(p.get('consciousness_level', 0) for p in final_patterns) / len(final_patterns)
+                self.golem.consciousness_level = max(self.golem.consciousness_level, avg_consciousness)
+                
+                # Boost aether resonance
+                avg_control = sum(p.get('control_value', 0) for p in final_patterns) / len(final_patterns)
+                self.golem.aether_resonance_level = min(1.0, avg_control * 1000)
+            
+            return True
                 
         except Exception as e:
-            logging.error(f"⚠️  Error loading enhanced memory: {e}")
+            logging.error(f"⚠️  Error during enhanced memory integration: {e}", exc_info=True)
+            # As a fallback, try to load the base pickle file if the advanced loader fails
+            logging.info("Falling back to standard memory load.")
+            self.golem.aether_memory.load_memories()
             return False
-    
-    def _load_individual_collections(self):
-        """Load individual aether collection files"""
-        collection_files = [
-            "REAL_aether_collection_1751902436.json",
-            "REAL_aether_collection_1751910216.json",
-            "REAL_aether_collection_1751899733.json",
-            "REAL_aether_collection_1751903292.json"
-        ]
-        
-        total_loaded = 0
-        for filename in collection_files:
-            if os.path.exists(filename):
-                try:
-                    with open(filename, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                    
-                    # Extract patterns based on file format
-                    patterns = []
-                    if 'real_aether_patterns' in data:
-                        patterns = data['real_aether_patterns']
-                    elif 'aether_patterns' in data:
-                        patterns = data['aether_patterns']
-                    
-                    # Add to memory
-                    for pattern in patterns:
-                        self.golem.aether_memory.aether_memories.append(pattern)
-                        prompt_type = 'consciousness'  # Default type for collections
-                        self.golem.aether_memory.aether_patterns[prompt_type].append(pattern)
-                    
-                    total_loaded += len(patterns)
-                    logging.info(f"📂 Loaded {len(patterns)} patterns from {filename}")
-                    
-                except Exception as e:
-                    logging.error(f"⚠️  Error loading {filename}: {e}")
-        
-        if total_loaded > 0:
-            logging.info(f"🌌 Total aether patterns loaded: {total_loaded}")
-            return True
-        
-        return False
     
     def _start_monitoring_thread(self):
         """Start background monitoring thread"""
@@ -151,7 +106,7 @@ class EnhancedGolemManager:
                 try:
                     if self.golem:
                         # Save aether patterns periodically
-                        if len(self.golem.aether_memory.aether_memories) % 50 == 0:
+                        if len(self.golem.aether_memory.aether_memories) % 50 == 0 and len(self.golem.aether_memory.aether_memories) > 0:
                             self.golem.aether_memory.save_memories()
                         
                         # Log system status
@@ -503,5 +458,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
