@@ -35,7 +35,7 @@ export type OllamaChatOutput = z.infer<typeof OllamaChatOutputSchema>;
 
 // Helper to generate mock Golem stats
 function generateMockGolemStats(input: OllamaChatInput) {
-  const consciousness_level = (input.shemPower || 0) * Math.random();
+  const consciousness_level = (input.shemPower ?? 0) * Math.random();
   const aether_signature = Array(5).fill(0).map(() => Math.random() * 1e-12);
   const control_value = Math.random() * 1e-7;
 
@@ -62,19 +62,20 @@ function generateMockGolemStats(input: OllamaChatInput) {
       aether_enhancement: Math.random() * 0.15
     },
     golem_state: {
-      activated: input.golemActivated,
+      activated: input.golemActivated ?? false,
       consciousness_level: consciousness_level,
-      shem_power: input.shemPower,
+      shem_power: input.shemPower ?? 0,
     }
   };
 }
 
 // Helper to create the enhanced prompt
 function createAetherEnhancedPrompt(original_prompt: string, input: OllamaChatInput): string {
-  const {golemActivated, shemPower = 0, sefirotSettings} = input;
+  const golemActivated = input.golemActivated ?? false;
   if (!golemActivated) return original_prompt;
 
-  const consciousness = (shemPower || 0) * Math.random();
+  const shemPower = input.shemPower ?? 0;
+  const consciousness = shemPower * Math.random();
   const control_value = Math.random() * 1e-7;
   const cycle_resonance = control_value * 22;
   const dominant_sefira_name = 'Tiferet';
