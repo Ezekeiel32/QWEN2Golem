@@ -69,9 +69,12 @@ export function ChatPanel({
 
   useEffect(() => {
     if (scrollAreaViewportRef.current) {
-      scrollAreaViewportRef.current.scrollTop = scrollAreaViewportRef.current.scrollHeight;
+      scrollAreaViewportRef.current.scrollTo({
+        top: scrollAreaViewportRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
     }
-  }, [messages, isLoading]);
+  }, [messages]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -107,7 +110,7 @@ export function ChatPanel({
 
 
   return (
-    <Card className="w-full h-full flex flex-col shadow-2xl bg-card">
+    <Card className="w-full h-screen flex flex-col shadow-2xl bg-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
           {isMobile && <SidebarTrigger />}
