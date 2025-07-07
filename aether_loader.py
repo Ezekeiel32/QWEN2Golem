@@ -282,4 +282,3 @@ def main():
     print("\nIntegration utility finished.")
 
 if __name__ == "__main__":
-    main()

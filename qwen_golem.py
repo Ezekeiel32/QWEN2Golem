@@ -173,14 +173,14 @@ class AetherMemoryBank:
             return {'control_value': self.quantum_threshold, 'aether_guidance_strength': 0}
         
         # Average the best control values
-        control_values = [p['cycle_params']['control_value'] for p in similar_patterns]
-        cycle_resonances = [p['cycle_params']['cycle_resonance'] for p in similar_patterns]
+        control_values = [p.get('cycle_params', {}).get('control_value', 0) for p in similar_patterns]
+        cycle_resonances = [p.get('cycle_params', {}).get('cycle_resonance', 0) for p in similar_patterns]
         
         avg_control = sum(control_values) / len(control_values) if control_values else 0
         avg_resonance = sum(cycle_resonances) / len(cycle_resonances) if cycle_resonances else 0
         
         # Quality-weighted bias
-        quality_weights = [p['response_quality'] for p in similar_patterns]
+        quality_weights = [p.get('response_quality', 0) for p in similar_patterns]
         avg_quality = sum(quality_weights) / len(quality_weights) if quality_weights else 0
         
         return {
@@ -223,9 +223,9 @@ class AetherMemoryBank:
             return {'total_patterns': 0}
         
         # Calculate statistics
-        qualities = [m['response_quality'] for m in self.aether_memories]
-        consciousness_levels = [m['consciousness_level'] for m in self.aether_memories]
-        control_values = [m['cycle_params']['control_value'] for m in self.aether_memories]
+        qualities = [m.get('response_quality', 0) for m in self.aether_memories]
+        consciousness_levels = [m.get('consciousness_level', 0) for m in self.aether_memories]
+        control_values = [m.get('cycle_params', {}).get('control_value', 0) for m in self.aether_memories]
         
         pattern_types = {}
         for pattern_type, patterns in self.aether_patterns.items():
@@ -325,8 +325,8 @@ class AetherEnhancedHebrewEmbedding(nn.Module):
         if not text or not any(char.isalpha() for char in text):
             return {'total': 0, 'average': 0, 'normalized': 0, 'aether_signature': 0, 'char_count': 0}
         
-        total = sum(self.gematria_values.get(char.lower(), 0) for char in text if char.isalpha())
         alpha_chars = [c for c in text if c.isalpha()]
+        total = sum(self.gematria_values.get(char.lower(), 0) for char in alpha_chars)
         average = total / len(alpha_chars) if alpha_chars else 0
         normalized = (total % 1000) / 1000 if total > 0 else 0
         
