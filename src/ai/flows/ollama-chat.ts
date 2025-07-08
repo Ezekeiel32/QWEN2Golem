@@ -39,7 +39,7 @@ export type OllamaChatOutput = z.infer<typeof OllamaChatOutputSchema>;
 export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutput> {
   // TEMPORARY FIX: Hardcoding the URL to bypass environment variable issues.
   // When your ngrok URL changes, you will need to update it here.
-  const golemUrl = "https://2eabe56ef0da.ngrok-free.app";
+  const golemUrl = "https://6c7deadab393.ngrok-free.app";
   
   // We construct the payload, passing all the golem control parameters from the UI.
   const { prompt, history = [], fileContent, ...restOfInput } = input;
