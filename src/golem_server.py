@@ -135,7 +135,7 @@ class EnhancedGolemManager:
                 'server_uptime': time.time() - self.server_start_time
             }
         
-        aether_stats = self.golem.aether_memory.get_aether_statistics()
+        aether_stats = self.golem.aether_memory.get_comprehensive_aether_statistics()
         memory = psutil.virtual_memory()
         
         return {
@@ -143,20 +143,8 @@ class EnhancedGolemManager:
             'server_uptime': time.time() - self.server_start_time,
             'total_requests': self.total_requests,
             'active_connections': self.active_connections,
-            'golem_state': {
-                'activated': self.golem.activated,
-                'consciousness_level': self.golem.consciousness_level,
-                'shem_power': self.golem.shem_power,
-                'aether_resonance_level': self.golem.aether_resonance_level,
-                'total_interactions': self.golem.total_interactions,
-                'activation_count': self.golem.activation_count
-            },
-            'aether_memory': {
-                'total_patterns': aether_stats.get('total_patterns', 0),
-                'avg_control_value': aether_stats.get('avg_control_value', 0),
-                'avg_consciousness': aether_stats.get('avg_consciousness', 0),
-                'pattern_types': aether_stats.get('pattern_types', {})
-            },
+            'golem_state': self.golem._get_current_golem_state(),
+            'aether_memory': aether_stats.get('base_statistics', {}),
             'system_resources': {
                 'memory_percent': memory.percent,
                 'memory_used_gb': round(memory.used / (1024**3), 2),
