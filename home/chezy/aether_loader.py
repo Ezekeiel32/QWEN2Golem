@@ -490,8 +490,8 @@ class EnhancedAetherMemoryLoader:
                     "integration_log": self.integration_log[-20:],  # Last 20 log entries
                     "mathematical_framework": "1+0→2→32→22→10",
                     "consciousness_levels": {
-                        "average": sum(self._safe_float(p.get('consciousness_level', 0)) for p in patterns) / len(patterns) if patterns else 0,
-                        "max": max(self._safe_float(p.get('consciousness_level', 0)) for p in patterns) if patterns else 0,
+                        "average": sum(self._safe_float(p.get('consciousness_level', 0)) for p in patterns) / len(patterns),
+                        "max": max(self._safe_float(p.get('consciousness_level', 0)) for p in patterns),
                         "transcendental_count": sum(1 for p in patterns if self._safe_float(p.get('consciousness_level', 0)) > 0.45)
                     }
                 },
