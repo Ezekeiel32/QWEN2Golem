@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
-COMPLETE INTEGRATION with EnhancedAetherMemoryLoader - loads ALL 571k+ patterns
+COMPLETE INTEGRATION with EnhancedAetherMemoryLoader and Conversation Context
 """
 
 from flask import Flask, request, jsonify
@@ -76,8 +76,8 @@ class ConversationContextManager:
         metadata['total_messages'] += 1
         
         # Track consciousness and aether progression
-        if aether_data:
-            consciousness = golem_analysis.get('consciousness_level', 0) if golem_analysis else 0
+        if golem_analysis and aether_data:
+            consciousness = golem_analysis.get('consciousness_level', 0)
             control_value = aether_data.get('control_value', 0)
             metadata['consciousness_progression'].append(consciousness)
             metadata['aether_control_progression'].append(control_value)
@@ -89,7 +89,7 @@ class ConversationContextManager:
         # Maintain context length
         if len(self.conversations[session_id]) > self.max_context_length:
             removed = self.conversations[session_id].pop(0)
-            print(f"🗑️  Removed old message from context: {removed['content'][:50]}...")
+            logging.info(f"🗑️  Removed old message from context for session {session_id}: {removed['content'][:50]}...")
         
         return session_id
     
@@ -102,13 +102,14 @@ class ConversationContextManager:
     
     def get_formatted_context_for_prompt(self, session_id: str) -> str:
         """Get conversation context formatted for inclusion in prompts"""
-        context = self.get_conversation_context(session_id)
+        # Get all but the most recent message (which is the current prompt)
+        context = self.get_conversation_context(session_id)[:-1]
         if not context:
             return ""
         
         formatted_lines = []
         formatted_lines.append("[CONVERSATION_CONTEXT]")
-        formatted_lines.append("Previous conversation in this session:")
+        formatted_lines.append("The following is the previous conversation history in this session:")
         
         for message in context[-10:]:  # Last 10 messages for prompt context
             role = "Human" if message['role'] == 'user' else "Golem"
@@ -127,11 +128,9 @@ class ConversationContextManager:
         metadata = self.conversation_metadata[session_id]
         context = self.conversations[session_id]
         
-        # Calculate conversation characteristics
         user_messages = [m for m in context if m['role'] == 'user']
         assistant_messages = [m for m in context if m['role'] == 'assistant']
         
-        # Analyze consciousness progression
         consciousness_progression = metadata.get('consciousness_progression', [])
         consciousness_trend = "stable"
         if len(consciousness_progression) >= 2:
@@ -142,17 +141,16 @@ class ConversationContextManager:
             elif recent_avg < early_avg - 0.05:
                 consciousness_trend = "declining"
         
-        # Analyze conversation topics
         all_text = " ".join([m['content'] for m in context])
         word_freq = defaultdict(int)
         for word in all_text.lower().split():
-            if len(word) > 4:  # Only count meaningful words
+            if len(word) > 4 and word.isalpha():
                 word_freq[word] += 1
         
         top_topics = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:5]
         
         return {
-            'session_duration': (datetime.now() - metadata['created_at']).total_seconds() / 3600,  # hours
+            'session_duration': (datetime.now() - metadata['created_at']).total_seconds() / 3600,
             'total_messages': metadata['total_messages'],
             'user_messages': len(user_messages),
             'assistant_messages': len(assistant_messages),
@@ -182,7 +180,7 @@ class ConversationContextManager:
             self.aether_context_patterns[session_id].append(pattern)
             
         except Exception as e:
-            print(f"⚠️  Error extracting conversation pattern: {e}")
+            logging.warning(f"⚠️  Error extracting conversation pattern: {e}")
     
     def get_conversation_aether_patterns(self, session_id: str) -> List[Dict]:
         """Get aether patterns extracted from this conversation"""
@@ -195,18 +193,14 @@ class ConversationContextManager:
     def _cleanup_old_conversations(self):
         """Remove conversations older than timeout"""
         current_time = datetime.now()
-        sessions_to_remove = []
-        
-        for session_id, metadata in self.conversation_metadata.items():
-            if current_time - metadata['last_updated'] > self.context_timeout:
-                sessions_to_remove.append(session_id)
+        sessions_to_remove = [sid for sid, meta in self.conversation_metadata.items() if current_time - meta['last_updated'] > self.context_timeout]
         
         for session_id in sessions_to_remove:
             del self.conversations[session_id]
             del self.conversation_metadata[session_id]
             if session_id in self.aether_context_patterns:
                 del self.aether_context_patterns[session_id]
-            print(f"🗑️  Cleaned up old conversation: {session_id}")
+            logging.info(f"🗑️  Cleaned up old conversation: {session_id}")
 
 
 class EnhancedGolemManager:
@@ -215,17 +209,13 @@ class EnhancedGolemManager:
     def __init__(self):
         self.golem = None
         self.initialization_error = None
-        self.chat_sessions = {}
         self.active_connections = 0
         self.total_requests = 0
         self.server_start_time = time.time()
         self.total_patterns_loaded = 0
         self.context_manager = ConversationContextManager()
         
-        # Initialize golem with enhanced memory
         self._initialize_golem_with_complete_memory()
-        
-        # Start background monitoring
         self._start_monitoring_thread()
     
     def _initialize_golem_with_complete_memory(self):
@@ -234,7 +224,6 @@ class EnhancedGolemManager:
             logging.info("🌌 Initializing Enhanced Aether Golem with COMPLETE memory integration...")
             self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-instruct-q4_0")
             
-            # CRITICAL: Load enhanced aether memory using the COMPLETE loader
             self._load_all_aether_patterns()
             
             logging.info("✅ Enhanced Aether Golem initialized successfully with complete memory")
@@ -248,16 +237,11 @@ class EnhancedGolemManager:
         """Load ALL collected aether patterns using the EnhancedAetherMemoryLoader - THIS IS THE FIX"""
         try:
             logging.info("🧠 Using EnhancedAetherMemoryLoader to integrate ALL patterns from current dir AND /home/chezy/...")
-            
-            # Create the enhanced loader
             loader = EnhancedAetherMemoryLoader()
-            
-            # Run the full integration process - this will load from BOTH directories
             final_patterns = loader.run()
 
             if not final_patterns:
                 logging.warning("❌ No patterns were loaded by the EnhancedAetherMemoryLoader.")
-                # As a fallback, try to load the base pickle file if the advanced loader fails
                 logging.info("Falling back to standard memory load.")
                 self.golem.aether_memory.load_memories()
                 self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
@@ -273,7 +257,6 @@ class EnhancedGolemManager:
             self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
             logging.info(f"🌌 COMPLETE INTEGRATION: {self.total_patterns_loaded:,} enhanced patterns loaded into Golem's memory.")
 
-            # Update golem state with enhanced consciousness from the integrated patterns
             if final_patterns:
                 consciousness_values = [p.get('consciousness_level', 0) for p in final_patterns if p.get('consciousness_level') is not None]
                 if consciousness_values:
@@ -365,7 +348,6 @@ class EnhancedGolemManager:
             }
         }
 
-# Initialize the enhanced manager
 golem_manager = EnhancedGolemManager()
 
 @app.route('/health', methods=['GET'])
@@ -411,12 +393,13 @@ def generate():
             return jsonify({"error": "Prompt is required"}), 400
 
         session_id = data.get('sessionId') or golem_manager.context_manager._generate_session_id()
+        
         golem_manager.context_manager.add_message(session_id, 'user', prompt)
         conversation_context = golem_manager.context_manager.get_formatted_context_for_prompt(session_id)
         
-        logging.info(f"📥 Request #{golem_manager.total_requests}: {prompt[:50]}... | Session: {session_id[:20]}... | Patterns Available: {len(golem_manager.golem.aether_memory.aether_memories):,}")
+        logging.info(f"📥 Request #{golem_manager.total_requests}: {prompt[:50]}... | Session: {session_id[:20]}... | Context: {'Yes' if conversation_context else 'No'}")
 
-        enhanced_prompt = f"{conversation_context}\n\n[CURRENT_USER_MESSAGE]\n{prompt}" if conversation_context else prompt
+        enhanced_prompt = f"{conversation_context}\n[CURRENT_USER_MESSAGE]\n{prompt}" if conversation_context else prompt
 
         is_activated = data.get('golemActivated', False)
         activation_phrases = data.get('activationPhrases', [])
@@ -467,7 +450,8 @@ def generate():
         quality = response.get('quality_metrics', {}).get('overall_quality', 0)
         control_value = response.get('aether_data', {}).get('control_value', 0)
         
-        logging.info(f"✅ Response generated in {generation_time:.2f}s | Quality: {quality:.3f} | Control: {control_value:.12f} | Context Length: {len(golem_manager.context_manager.get_conversation_context(session_id))}")
+        context_length = len(golem_manager.context_manager.get_conversation_context(session_id))
+        logging.info(f"✅ Response generated in {generation_time:.2f}s | Quality: {quality:.3f} | Control: {control_value:.12f} | Context Length: {context_length}")
         
         return jsonify(response)
         
@@ -537,3 +521,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    
