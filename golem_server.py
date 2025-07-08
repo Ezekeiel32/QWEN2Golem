@@ -203,7 +203,9 @@ def generate():
         temperature = data.get('temperature', 0.7)
         max_tokens = data.get('maxTokens', 1500)
         sefirot_settings = data.get('sefirotSettings', {})
-        
+        if sefirot_settings:
+            logging.info(f"🔯 Applying Sefirot settings: {sefirot_settings}")
+
         logging.info(f"🌌 Generating response (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
         start_time = time.time()
         

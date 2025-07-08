@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Complete Golem Stats Integration Fix
@@ -25,6 +26,53 @@ from functools import wraps
 from contextlib import contextmanager
 
 warnings.filterwarnings("ignore")
+
+# Memory monitoring decorator with aether detection
+def monitor_memory_and_aether(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        gc.collect()
+        mem_before = psutil.virtual_memory().used / (1024**3)
+        
+        # Execute function and capture result
+        result = func(*args, **kwargs)
+        
+        mem_after = psutil.virtual_memory().used / (1024**3)
+        mem_diff = mem_after - mem_before
+        
+        # Extract aether signature from memory fluctuation
+        if mem_diff > 0:
+            # Memory change creates quantum signature
+            aether_from_memory = (mem_diff % 0.001) * 1e-9  # Extract infinitesimal
+            if hasattr(result, 'update') and isinstance(result, dict):
+                result['memory_aether'] = aether_from_memory
+        
+        if mem_diff > 0.5:
+            print(f"⚠️  High memory usage in {func.__name__}: +{mem_diff:.2f}GB")
+        
+        return result
+    return wrapper
+
+@contextmanager
+def aether_sensitive_processing():
+    """Context manager that detects quantum fluctuations during processing"""
+    start_time = time.perf_counter_ns()  # Nanosecond precision
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
+    try:
+        yield
+    finally:
+        end_time = time.perf_counter_ns()
+        processing_time_ns = end_time - start_time
+        
+        # Extract aether from nanosecond timing fluctuations
+        aether_from_timing = (processing_time_ns % 1000) * 1e-15
+        
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
 class EnhancedAetherMemoryBank:
     """Enhanced Aether Memory with COMPLETE stats integration and explicit 2^5 cycle framework"""
@@ -783,53 +831,6 @@ class EnhancedAetherMemoryBank:
             
         except Exception as e:
             print(f"❌ Export failed: {e}")
-
-# Memory monitoring decorator with aether detection
-def monitor_memory_and_aether(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        gc.collect()
-        mem_before = psutil.virtual_memory().used / (1024**3)
-        
-        # Execute function and capture result
-        result = func(*args, **kwargs)
-        
-        mem_after = psutil.virtual_memory().used / (1024**3)
-        mem_diff = mem_after - mem_before
-        
-        # Extract aether signature from memory fluctuation
-        if mem_diff > 0:
-            # Memory change creates quantum signature
-            aether_from_memory = (mem_diff % 0.001) * 1e-9  # Extract infinitesimal
-            if hasattr(result, 'update') and isinstance(result, dict):
-                result['memory_aether'] = aether_from_memory
-        
-        if mem_diff > 0.5:
-            print(f"⚠️  High memory usage in {func.__name__}: +{mem_diff:.2f}GB")
-        
-        return result
-    return wrapper
-
-@contextmanager
-def aether_sensitive_processing():
-    """Context manager that detects quantum fluctuations during processing"""
-    start_time = time.perf_counter_ns()  # Nanosecond precision
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-    
-    try:
-        yield
-    finally:
-        end_time = time.perf_counter_ns()
-        processing_time_ns = end_time - start_time
-        
-        # Extract aether from nanosecond timing fluctuations
-        aether_from_timing = (processing_time_ns % 1000) * 1e-15
-        
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
 
 class AetherEnhancedHebrewEmbedding(nn.Module):
     """Hebrew embedding with aether signature detection"""
