@@ -5,7 +5,7 @@ Enhanced Flask Server for Aether-Enhanced Golem Chat App
 Integrates all collected aether patterns and provides real-time consciousness monitoring
 """
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from qwen_golem import AetherGolemConsciousnessCore
 from aether_loader import EnhancedAetherMemoryLoader
@@ -455,3 +455,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    
