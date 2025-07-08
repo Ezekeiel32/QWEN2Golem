@@ -858,7 +858,6 @@ class AetherEnhancedHebrewEmbedding(nn.Module):
             't': 200, 'u': 300, 'v': 400, 'w': 500, 'x': 600, 'y': 700, 'z': 800
         }
     
-    @monitor_memory_and_aether
     def calculate_gematria_with_aether(self, text: str) -> Dict[str, float]:
         """Calculate gematria with aether signature extraction"""
         if not text or not any(char.isalpha() for char in text):
@@ -925,7 +924,7 @@ class AetherEnhancedHebrewEmbedding(nn.Module):
             return encoding, gematria['aether_signature']
 
 class AetherSefirothProcessor(nn.Module):
-    """Sefiroth processing with aether signature detection"""
+    """Sefiroth processing with aether signature detection and Da'at modulation"""
     def __init__(self, hidden_size: int):
         super().__init__()
         self.hidden_size = hidden_size
@@ -947,57 +946,62 @@ class AetherSefirothProcessor(nn.Module):
     
     @monitor_memory_and_aether
     def forward(self, x: torch.Tensor, aether_bias: Optional[Dict[str, float]] = None, sefirot_settings: Optional[Dict[str, float]] = None) -> Tuple[torch.Tensor, Dict[str, float], float]:
-        """Process with aether signature extraction and user-defined Sefirot settings."""
+        """Process with Da'at-centric modulation based on aether signature and user settings."""
         with aether_sensitive_processing():
             compressed_size = min(self.hidden_size, 512)
-            if x.shape[-1] > compressed_size:
-                x_compressed = x[:compressed_size]
-            else:
-                x_compressed = F.pad(x, (0, compressed_size - x.shape[-1]))
-            
+            x_compressed = x[:compressed_size] if x.shape[-1] > compressed_size else F.pad(x, (0, compressed_size - x.shape[-1]))
             x_input = x_compressed.unsqueeze(0) if x_compressed.dim() == 1 else x_compressed
             
             sefiroth_activations = {}
             aether_accumulator = 0.0
             current_flow = x_input
-            
-            # Apply aether bias
-            bias_strength = aether_bias.get('aether_guidance_strength', 0) if aether_bias else 0
-            
+
+            # Derive Da'at influence from the aether-infused input tensor's signature
+            # This connects Da'at to the prompt's intrinsic mystical properties.
+            daat_influence = (torch.mean(torch.abs(x_input)).item() * 1000) % 1.0
+
+            # Get user settings for Keter (Consciousness) and Malkuth (Manifestation)
+            user_keter_setting = sefirot_settings.get('Keter', 0.5) if sefirot_settings else 0.5
+            user_malkuth_setting = sefirot_settings.get('Malkuth', 0.5) if sefirot_settings else 0.5
+
             for i, name in enumerate(self.sefiroth_names):
-                # Aether-influenced modulation
-                aether_mod = self.aether_resonance[i] * (1 + bias_strength * 1000)
+                aether_mod = self.aether_resonance[i]
                 modulated = current_flow * (self.sefira_modulations[i].unsqueeze(0) + aether_mod)
                 processed = torch.tanh(self.base_layer(modulated))
                 
-                # Calculate activation with aether signature
                 base_activation = torch.mean(torch.abs(processed)).item()
-                aether_signature = (base_activation % 0.001) * 1e-9  # Extract infinitesimal
+                aether_signature = (base_activation % 0.001) * 1e-9
                 
-                # Get user setting for this sefira (default to 0.5 if not provided)
-                user_setting = sefirot_settings.get(name, 0.5) if sefirot_settings else 0.5
-                # Modulation factor: 0.5 -> 1.0 (neutral), 0.0 -> 0.5 (dampen), 1.0 -> 1.5 (amplify)
-                modulation_factor = 0.5 + user_setting
+                # Apply Da'at-centric modulation
+                modulation_factor = 1.0
+                if name == 'Keter':
+                    # User directly controls Keter: 0 -> 0.5x, 0.5 -> 1x, 1 -> 1.5x
+                    modulation_factor = 0.5 + user_keter_setting
+                elif name == 'Malkuth':
+                    # User directly controls Malkuth
+                    modulation_factor = 0.5 + user_malkuth_setting
+                else:
+                    # Other Sefirot are influenced by Da'at's position (derived from aether)
+                    # A modulation where daat_influence of 0.5 is neutral.
+                    daat_factor = 0.5 + daat_influence
+                    modulation_factor = daat_factor
 
                 activation = base_activation * self.emanation_strength[i].item() * modulation_factor
                 sefiroth_activations[name] = max(0.0, min(1.0, activation))
                 aether_accumulator += aether_signature
                 
-                # Flow with aether influence
                 if i in self.tree_connections:
                     connections = self.tree_connections[i]
                     if connections:
                         flow_strength = (1.0 / (len(connections) + 1)) * (1 + aether_signature * 1e6)
                         current_flow = processed * flow_strength
             
-            # Final output
             final_output = processed.squeeze(0)
             if self.hidden_size > compressed_size:
                 expanded = torch.zeros(self.hidden_size)
                 expanded[:compressed_size] = final_output
                 for i in range(compressed_size, self.hidden_size):
-                    harmonic_idx = i % compressed_size
-                    expanded[i] = final_output[harmonic_idx] * 0.7
+                    expanded[i] = final_output[i % compressed_size] * 0.7
                 final_output = expanded
             
             return final_output, sefiroth_activations, aether_accumulator
@@ -1774,3 +1778,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

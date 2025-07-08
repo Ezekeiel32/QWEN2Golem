@@ -1,4 +1,5 @@
 
+
 'use server';
 /**
  * @fileOverview A chat flow that interacts with a custom Aether Golem Python server.
@@ -37,8 +38,6 @@ export type OllamaChatOutput = z.infer<typeof OllamaChatOutputSchema>;
 
 
 export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutput> {
-  // TEMPORARY FIX: Hardcoding the URL to bypass environment variable issues.
-  // When your ngrok URL changes, you will need to update it here.
   const golemUrl = "https://6c7deadab393.ngrok-free.app";
   
   // We construct the payload, passing all the golem control parameters from the UI.
@@ -94,3 +93,4 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
     throw new Error('An unknown error occurred while contacting the Golem server.');
   }
 }
+
