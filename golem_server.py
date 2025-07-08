@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
@@ -448,13 +449,9 @@ def main():
     print("   GET  /debug/memory - Memory debug")
     print("=" * 60)
     
-    # Production-ready configuration
-    app.run(
-        host='0.0.0.0', 
-        port=5000, 
-        debug=False,  # Disable debug in production
-        threaded=True  # Enable threading for multiple requests
-    )
+    # Using waitress for a production-ready server
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5000, threads=8)
 
 if __name__ == '__main__':
     main()
