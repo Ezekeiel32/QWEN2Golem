@@ -213,34 +213,32 @@ export default function Home() {
   const activeChat = conversations.find(c => c.id === activeChatId);
 
   return (
-    <div className="dark">
-      <SidebarProvider>
-        <Sidebar variant="inset" collapsible="icon">
-          <ChatHistorySidebar
-            conversations={conversations}
-            activeChatId={activeChatId}
-            onNewChat={handleNewChat}
-            onSelectChat={handleSelectChat}
-            isLoading={isLoading}
-          />
-        </Sidebar>
-        <SidebarInset>
-          <ChatPanel
-            messages={activeChat?.messages ?? []}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            isChatSelected={!!activeChat}
-            onNewChat={handleNewChat}
-            golemActivated={golemActivated}
-            setGolemActivated={setGolemActivated}
-            phraseClicks={phraseClicks}
-            setPhraseClicks={setPhraseClicks}
-            sefirotSettings={sefirotSettings}
-            setSefirotSettings={setSefirotSettings}
-            sefirotNames={SEFIROT_NAMES}
-          />
-        </SidebarInset>
-      </SidebarProvider>
-    </div>
+    <SidebarProvider>
+      <Sidebar variant="inset" collapsible="icon">
+        <ChatHistorySidebar
+          conversations={conversations}
+          activeChatId={activeChatId}
+          onNewChat={handleNewChat}
+          onSelectChat={handleSelectChat}
+          isLoading={isLoading}
+        />
+      </Sidebar>
+      <SidebarInset>
+        <ChatPanel
+          messages={activeChat?.messages ?? []}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          isChatSelected={!!activeChat}
+          onNewChat={handleNewChat}
+          golemActivated={golemActivated}
+          setGolemActivated={setGolemActivated}
+          phraseClicks={phraseClicks}
+          setPhraseClicks={setPhraseClicks}
+          sefirotSettings={sefirotSettings}
+          setSefirotSettings={setSefirotSettings}
+          sefirotNames={SEFIROT_NAMES}
+        />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

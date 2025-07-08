@@ -3,6 +3,7 @@
 
 import {
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
@@ -12,6 +13,7 @@ import {
 import { MessageSquare, Plus } from 'lucide-react';
 import type { Conversation } from '@/app/page';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ThemeToggle } from './theme-toggle';
 
 type ChatHistorySidebarProps = {
   conversations: Conversation[];
@@ -73,6 +75,11 @@ export function ChatHistorySidebar({
           </div>
         </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter>
+        <div className="flex w-full items-center justify-end p-2 group-data-[collapsible=icon]:justify-center">
+            <ThemeToggle />
+        </div>
+      </SidebarFooter>
     </>
   );
 }
