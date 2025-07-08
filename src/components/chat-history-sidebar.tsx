@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -10,10 +11,12 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { MessageSquare, Plus } from 'lucide-react';
+import { MessageSquare, MessagesSquare, Plus } from 'lucide-react';
 import type { Conversation } from '@/app/page';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from './theme-toggle';
+import { ChatHistoryModal } from './chat-history-modal';
+import { useState } from 'react';
 
 type ChatHistorySidebarProps = {
   conversations: Conversation[];
@@ -32,6 +35,7 @@ export function ChatHistorySidebar({
 }: ChatHistorySidebarProps) {
   const isMobile = useIsMobile();
   const { state } = useSidebar();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
@@ -61,6 +65,28 @@ export function ChatHistorySidebar({
               <span>New Chat</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
+          {/* New Button for collapsed view */}
+          {state === 'collapsed' && !isMobile && (
+             <SidebarMenuItem className="p-2">
+              <SidebarMenuButton
+                onClick={() => setIsModalOpen(true)}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+                tooltip={{
+                  children: 'View Chats',
+                  side: 'right',
+                  align: 'center',
+                }}
+              >
+                <MessagesSquare />
+                <span className="sr-only">View Chats</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+          {/* Existing chat list for expanded view */}
           {state === 'expanded' && (
             <div className="flex-1 space-y-1 p-2">
               {conversations.map((convo) => (
@@ -89,6 +115,15 @@ export function ChatHistorySidebar({
             <ThemeToggle />
         </div>
       </SidebarFooter>
+
+      {/* Render the modal */}
+      <ChatHistoryModal
+        conversations={conversations}
+        onSelectChat={onSelectChat}
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        isLoading={isLoading}
+      />
     </>
   );
 }
