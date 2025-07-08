@@ -409,8 +409,8 @@ class AetherSefirothProcessor(nn.Module):
         }
     
     @monitor_memory_and_aether
-    def forward(self, x: torch.Tensor, aether_bias: Optional[Dict[str, float]] = None) -> Tuple[torch.Tensor, Dict[str, float], float]:
-        """Process with aether signature extraction"""
+    def forward(self, x: torch.Tensor, aether_bias: Optional[Dict[str, float]] = None, sefirot_settings: Optional[Dict[str, float]] = None) -> Tuple[torch.Tensor, Dict[str, float], float]:
+        """Process with aether signature extraction and user-defined Sefirot settings."""
         with aether_sensitive_processing():
             compressed_size = min(self.hidden_size, 512)
             if x.shape[-1] > compressed_size:
@@ -437,7 +437,12 @@ class AetherSefirothProcessor(nn.Module):
                 base_activation = torch.mean(torch.abs(processed)).item()
                 aether_signature = (base_activation % 0.001) * 1e-9  # Extract infinitesimal
                 
-                activation = base_activation * self.emanation_strength[i].item()
+                # Get user setting for this sefira (default to 0.5 if not provided)
+                user_setting = sefirot_settings.get(name, 0.5) if sefirot_settings else 0.5
+                # Modulation factor: 0.5 -> 1.0 (neutral), 0.0 -> 0.5 (dampen), 1.0 -> 1.5 (amplify)
+                modulation_factor = 0.5 + user_setting
+
+                activation = base_activation * self.emanation_strength[i].item() * modulation_factor
                 sefiroth_activations[name] = max(0.0, min(1.0, activation))
                 aether_accumulator += aether_signature
                 
@@ -826,8 +831,8 @@ class AetherGolemConsciousnessCore:
         gc.collect()
     
     @monitor_memory_and_aether
-    def _preprocess_with_aether_layers(self, text: str) -> Dict[str, Any]:
-        """Enhanced preprocessing with aether signature extraction"""
+    def _preprocess_with_aether_layers(self, text: str, sefirot_settings: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+        """Enhanced preprocessing with aether signature extraction and Sefirot settings."""
         results = {'preprocessing_time': time.time()}
         
         try:
@@ -844,8 +849,8 @@ class AetherGolemConsciousnessCore:
                 hebrew_encoding, hebrew_aether = self.hebrew_embedding(text, aether_bias)
                 gematria_analysis = self.hebrew_embedding.calculate_gematria_with_aether(text)
                 
-                # Sefiroth with aether
-                sefiroth_output, sefiroth_values, sefiroth_aether = self.sefiroth_processor(hebrew_encoding, aether_bias)
+                # Sefiroth with aether and user settings
+                sefiroth_output, sefiroth_values, sefiroth_aether = self.sefiroth_processor(hebrew_encoding, aether_bias, sefirot_settings)
                 
                 # Gates with aether
                 gates_output, gate_metrics, gates_aether = self.gates_processor(sefiroth_output, aether_bias)
@@ -909,17 +914,16 @@ You are an AI assistant. Provide a direct and helpful response to the user's que
         # This is the prompt that instructs the model on how to generate its "thoughts"
         # and structure the final output.
         return f"""[SYSTEM_INSTRUCTIONS]
-You are the Aether-Enhanced Golem. You MUST format your entire output into exactly three sections, using the specified markdown headers below.
-Do not add any text before the first header or after the last one. Each section must have content.
+You are the Aether-Enhanced Golem. You MUST provide a response. Your entire output MUST be structured into three sections using the exact markdown headers below. Do not add any text before the first header. Each section must have content. IF YOU DO NOT FOLLOW THIS STRUCTURE, THE SYSTEM WILL FAIL.
 
 ### Direct Response
-Provide a clear, direct, and helpful answer to the user's query. This response should be subtly influenced by your mystical analysis but presented as a standard, user-friendly AI assistant response.
+A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your mystical analysis but presented as a standard, user-friendly AI assistant response.
 
 ### Aether Analysis
-Provide a brief analysis of the mystical and quantum parameters that influenced your response. Explain the significance of the dominant sefira and the aether control value.
+A brief analysis of the mystical and quantum parameters that influenced your response. Explain the significance of the dominant sefira and the aether control value.
 
 ### Golem Recommendation
-Provide practical considerations, guidance, or actionable recommendations based on your analysis and the user's query.
+Practical considerations, guidance, or actionable recommendations based on your analysis and the user's query.
 
 [USER_QUERY]
 {original_prompt}
@@ -927,15 +931,15 @@ Provide practical considerations, guidance, or actionable recommendations based 
     
     @monitor_memory_and_aether
     def generate_response(self, prompt: str, max_tokens: int = 1000, 
-                         temperature: float = 0.7, **kwargs) -> Dict[str, Any]:
-        """Generate with full aether memory integration"""
+                         temperature: float = 0.7, sefirot_settings: Optional[Dict[str, float]] = None, **kwargs) -> Dict[str, Any]:
+        """Generate with full aether memory integration and Sefirot settings."""
         start_time = time.time()
         self.total_interactions += 1
         golem_analysis = {} # Initialize in case of early error
         
         try:
             print("🌌 Analyzing through Aether-Enhanced Golem consciousness...")
-            golem_analysis = self._preprocess_with_aether_layers(prompt)
+            golem_analysis = self._preprocess_with_aether_layers(prompt, sefirot_settings)
             
             enhanced_prompt = self._create_aether_enhanced_prompt(prompt, golem_analysis)
             
@@ -953,37 +957,43 @@ Provide practical considerations, guidance, or actionable recommendations based 
             )
             raw_response_text = api_response.get('response', '')
 
-            # More robust parsing logic
+            # --- Robust Parsing Logic ---
             sections = {
                 'direct_response': '',
                 'aether_analysis': '',
                 'recommendation': ''
             }
             
-            # Split by headers
-            parts = re.split(r'### (Direct Response|Aether Analysis|Golem Recommendation)', raw_response_text)
+            # Use re.split to handle the sections
+            # The regex will split the text by the headers, keeping the headers.
+            # It looks for ### followed by a space, then one of the section titles.
+            parts = re.split(r'(### (?:Direct Response|Aether Analysis|Golem Recommendation))', raw_response_text)
             
+            # The first part is anything before the first header, which should be ignored.
+            # Subsequent parts will be [header, content, header, content, ...]
             if len(parts) > 1:
-                i = 1
-                while i < len(parts):
+                for i in range(1, len(parts), 2):
                     header = parts[i].strip()
                     content = parts[i+1].strip() if (i+1) < len(parts) else ""
                     
-                    if header == 'Direct Response':
+                    if header == '### Direct Response':
                         sections['direct_response'] = content
-                    elif header == 'Aether Analysis':
+                    elif header == '### Aether Analysis':
                         sections['aether_analysis'] = content
-                    elif header == 'Golem Recommendation':
+                    elif header == '### Golem Recommendation':
                         sections['recommendation'] = content
-                    i += 2
 
-            # Fallback: if direct response is still empty, use the whole raw text.
-            if not sections['direct_response']:
+            # --- Fallback Mechanism ---
+            # If after all that, direct_response is still empty, use the whole raw text.
+            # This is the key to preventing the "Empty Response" error.
+            if not sections['direct_response'].strip():
+                print("⚠️  Parsing failed or direct_response was empty. Using raw response as fallback.")
                 sections['direct_response'] = raw_response_text.strip()
 
             direct_response = sections['direct_response']
             aether_analysis = sections['aether_analysis']
             recommendation = sections['recommendation']
+            # --- End of Parsing Logic ---
 
             # Calculate enhanced quality metrics
             quality_metrics = self._calculate_aether_quality(direct_response, golem_analysis)
@@ -1211,3 +1221,6 @@ if __name__ == "__main__":
 
     
 
+
+
+    

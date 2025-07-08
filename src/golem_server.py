@@ -216,8 +216,7 @@ def generate():
         max_tokens = data.get('maxTokens', 1500)
         sefirot_settings = data.get('sefirotSettings', {})
         if sefirot_settings:
-            # Here you might want to pass these settings to the golem
-            logging.info(f"🔯 Sefirot settings received: {sefirot_settings}")
+            logging.info(f"🔯 Applying Sefirot settings: {sefirot_settings}")
 
         logging.info(f"🌌 Generating response (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
         start_time = time.time()
@@ -225,7 +224,8 @@ def generate():
         response = golem_manager.golem.generate_response(
             prompt=prompt,
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
+            sefirot_settings=sefirot_settings
         )
         
         generation_time = time.time() - start_time
@@ -270,3 +270,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    
