@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -9,6 +8,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { MessageSquare, Plus } from 'lucide-react';
 import type { Conversation } from '@/app/page';
@@ -31,6 +31,8 @@ export function ChatHistorySidebar({
   isLoading,
 }: ChatHistorySidebarProps) {
   const isMobile = useIsMobile();
+  const { state } = useSidebar();
+
   return (
     <>
       <SidebarHeader>
@@ -49,30 +51,37 @@ export function ChatHistorySidebar({
               disabled={isLoading}
               variant="default"
               className="w-full"
+              tooltip={{
+                children: 'New Chat',
+                side: 'right',
+                align: 'center',
+              }}
             >
               <Plus />
               <span>New Chat</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <div className="flex-1 space-y-1 p-2">
-            {conversations.map((convo) => (
-              <SidebarMenuItem key={convo.id}>
-                <SidebarMenuButton
-                  isActive={activeChatId === convo.id}
-                  onClick={() => onSelectChat(convo.id)}
-                  disabled={isLoading}
-                  tooltip={{
-                    children: convo.name || 'New Chat',
-                    side: 'right',
-                    align: 'center',
-                  }}
-                >
-                  <MessageSquare />
-                  <span className="truncate">{convo.name || 'New Chat'}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </div>
+          {state === 'expanded' && (
+            <div className="flex-1 space-y-1 p-2">
+              {conversations.map((convo) => (
+                <SidebarMenuItem key={convo.id}>
+                  <SidebarMenuButton
+                    isActive={activeChatId === convo.id}
+                    onClick={() => onSelectChat(convo.id)}
+                    disabled={isLoading}
+                    tooltip={{
+                      children: convo.name || 'New Chat',
+                      side: 'right',
+                      align: 'center',
+                    }}
+                  >
+                    <MessageSquare />
+                    <span className="truncate">{convo.name || 'New Chat'}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </div>
+          )}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
