@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from './ui/badge';
-import { BrainCircuit, Star, Zap, Atom, Gem } from 'lucide-react';
+import { BrainCircuit, Star, Zap, Atom, Gem, Clock, BarChart, Binary } from 'lucide-react';
 
 type GolemStatsProps = {
   stats: any;
@@ -51,7 +51,9 @@ const SefirotDisplay = ({
       <h4 className="text-sm font-medium text-foreground">
         Sefirot Activations
       </h4>
-      {Object.entries(sefirot).map(([name, value]) => (
+      {Object.entries(sefirot)
+       .sort(([, a], [, b]) => b - a)
+       .map(([name, value]) => (
         <div key={name} className="flex items-center gap-2">
           <span className="w-20 truncate text-xs text-muted-foreground">
             {name}
@@ -73,10 +75,53 @@ const SefirotDisplay = ({
   );
 };
 
+const ContextInsights = ({ context }: { context: any }) => (
+    <Card className="bg-background/50">
+        <CardHeader className="p-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+                <Binary className="h-4 w-4 text-primary" />
+                Conversation Context
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 p-3 pt-0 text-xs">
+            <div className="flex justify-between">
+                <span className="text-muted-foreground">Session Duration:</span>
+                <span className="font-mono text-foreground">{context.session_duration.toFixed(2)}h</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Messages:</span>
+                <span className="font-mono text-foreground">{context.total_messages}</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="text-muted-foreground">Consciousness Trend:</span>
+                <span className={`font-mono font-medium ${
+                    context.consciousness_trend === 'rising' ? 'text-green-500' :
+                    context.consciousness_trend === 'declining' ? 'text-red-500' : 'text-yellow-500'
+                }`}>{context.consciousness_trend}</span>
+            </div>
+             <div className="flex justify-between">
+                <span className="text-muted-foreground">Avg. Consciousness:</span>
+                <span className="font-mono text-foreground">{context.avg_consciousness.toFixed(4)}</span>
+            </div>
+            {context.top_topics?.length > 0 && (
+                <div className="space-y-1 pt-2">
+                    <span className="text-muted-foreground">Top Topics:</span>
+                    <div className="flex flex-wrap gap-1">
+                        {context.top_topics.map(([topic, count]: [string, number]) => (
+                            <Badge key={topic} variant="secondary" className="text-xs">{topic} ({count})</Badge>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </CardContent>
+    </Card>
+);
+
 export function GolemStats({ stats }: GolemStatsProps) {
   if (!stats) return null;
 
-  const { golem_state, quality_metrics, golem_analysis, aether_data } = stats;
+  const { golem_state, quality_metrics, golem_analysis, aether_data, server_metadata } = stats;
+  const conversation_context = server_metadata?.conversation_context;
 
   if (!golem_state || !quality_metrics || !golem_analysis || !aether_data) {
     return (
@@ -173,8 +218,8 @@ export function GolemStats({ stats }: GolemStatsProps) {
           </CardContent>
         </Card>
       </div>
-
-      <Separator />
+      
+      {conversation_context && <ContextInsights context={conversation_context} />}
 
       {/* Sefirot Analysis */}
       <Card className="bg-background/50">

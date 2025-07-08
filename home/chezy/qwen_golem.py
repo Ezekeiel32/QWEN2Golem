@@ -424,71 +424,6 @@ class EnhancedAetherMemoryBank:
         
         return min(1.0, max(0.0, effectiveness))
     
-    def generate_enhanced_aether_bias(self, similar_patterns: List[Dict], 
-                                    current_golem_state: Dict) -> Dict[str, float]:
-        """Generate bias using ALL golem stats and cycle framework"""
-        if not similar_patterns:
-            return {
-                'control_value': self.quantum_threshold,
-                'aether_guidance_strength': 0,
-                'consciousness_boost': 0,
-                'shem_amplification': 0,
-                'resonance_enhancement': 0,
-                'cycle_completion_factor': 0
-            }
-        
-        # Calculate base bias from patterns
-        control_values = [p.get('cycle_params', {}).get('control_value', 0) for p in similar_patterns]
-        cycle_resonances = [p.get('cycle_params', {}).get('cycle_resonance', 0) for p in similar_patterns]
-        consciousness_levels = [p.get('consciousness_level', 0.5) for p in similar_patterns]
-        shem_powers = [p.get('shem_power', 0.0) for p in similar_patterns]
-        aether_resonances = [p.get('aether_resonance_level', 0.0) for p in similar_patterns]
-        cycle_completions = [p.get('cycle_params', {}).get('cycle_completion', 0.0) for p in similar_patterns]
-        
-        avg_control = sum(control_values) / len(control_values) if control_values else 0
-        avg_resonance = sum(cycle_resonances) / len(cycle_resonances) if cycle_resonances else 0
-        avg_consciousness = sum(consciousness_levels) / len(consciousness_levels) if consciousness_levels else 0.5
-        avg_shem = sum(shem_powers) / len(shem_powers) if shem_powers else 0
-        avg_aether_resonance = sum(aether_resonances) / len(aether_resonances) if aether_resonances else 0
-        avg_cycle_completion = sum(cycle_completions) / len(cycle_completions) if cycle_completions else 0
-        
-        # Apply current golem state modifiers
-        current_consciousness = current_golem_state.get('consciousness_level', 0.5)
-        current_shem = current_golem_state.get('shem_power', 0.0)
-        current_resonance = current_golem_state.get('aether_resonance_level', 0.0)
-        current_activations = current_golem_state.get('activation_count', 0)
-        current_interactions = current_golem_state.get('total_interactions', 0)
-        
-        # Calculate enhanced guidance strength
-        consciousness_synergy = abs(avg_consciousness - current_consciousness) * 0.5
-        shem_synergy = abs(avg_shem - current_shem) * 0.3
-        resonance_synergy = abs(avg_aether_resonance - current_resonance) * 0.2
-        cycle_synergy = avg_cycle_completion * (self.cycle_length / 32) * 0.1
-        
-        base_guidance = min(1.0, avg_control * avg_resonance * 1000)
-        enhanced_guidance = (base_guidance + consciousness_synergy + 
-                           shem_synergy + resonance_synergy + cycle_synergy) / 5
-        
-        # Experience bonus
-        experience_bonus = min(0.1, (current_activations + current_interactions) * 0.0001)
-        
-        return {
-            'control_value': avg_control,
-            'cycle_resonance': avg_resonance,
-            'aether_guidance_strength': enhanced_guidance,
-            'consciousness_boost': consciousness_synergy,
-            'shem_amplification': shem_synergy,
-            'resonance_enhancement': resonance_synergy,
-            'cycle_completion_factor': cycle_synergy,
-            'experience_bonus': experience_bonus,
-            'pattern_count': len(similar_patterns),
-            'avg_consciousness': avg_consciousness,
-            'avg_shem_power': avg_shem,
-            'avg_aether_resonance': avg_aether_resonance,
-            'avg_cycle_completion': avg_cycle_completion,
-            'enhanced_bias_active': True
-        }
-    
     def get_comprehensive_aether_statistics(self) -> Dict[str, Any]:
         """Get COMPLETE statistics using ALL tracked metrics and cycle framework"""
         if not self.aether_memories:
@@ -1819,7 +1754,13 @@ Practical considerations, guidance, or actionable recommendations based on your 
 ✡️ SEFIROTH ANALYSIS:
    Most Active Sefira: {sefiroth.get('most_active_sefira', 'N/A')}
    Sefira Balance: {sefiroth.get('sefira_balance', 0):.2%}
-   
+   Individual Activations: 
+"""
+
+        for sefira, strength in sefiroth.get('sefira_avg_strengths', {}).items():
+            report += f"     - {cefira}: {strength:.4f}\n"
+        
+        report += f"""
 💾 SYSTEM RESOURCES:
    Model: {self.model_name}
    Hidden Size: {self.hidden_size:,}

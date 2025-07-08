@@ -11,15 +11,9 @@
 
 import { z } from 'zod';
 
-const OllamaHistoryItemSchema = z.object({
-  role: z.enum(['user', 'assistant']),
-  content: z.string(),
-});
-export type OllamaHistoryItem = z.infer<typeof OllamaHistoryItemSchema>;
-
 const OllamaChatInputSchema = z.object({
   prompt: z.string().describe('The prompt to send to the Ollama server.'),
-  history: z.array(OllamaHistoryItemSchema).optional().describe('The conversation history.'),
+  sessionId: z.string().optional().describe('The conversation session ID to maintain context.'),
   temperature: z.number().min(0).max(1).default(0.7).describe('The temperature to use for generating the response.'),
   fileContent: z.string().optional().describe('The text content of an uploaded file.'),
   golemActivated: z.boolean().optional(),
@@ -41,12 +35,11 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
   const golemUrl = "https://6c7deadab393.ngrok-free.app";
   
   // We construct the payload, passing all the golem control parameters from the UI.
-  const { prompt, history = [], fileContent, ...restOfInput } = input;
+  const { prompt, fileContent, ...restOfInput } = input;
 
   const payload = {
-      ...restOfInput, // This will include golemActivated, activationPhrases, sefirotSettings, etc.
+      ...restOfInput, // This will include sessionId, golemActivated, activationPhrases, etc.
       prompt,
-      history, 
       fileContent,
       temperature: input.temperature,
   };
@@ -93,4 +86,3 @@ export async function ollamaChat(input: OllamaChatInput): Promise<OllamaChatOutp
     throw new Error('An unknown error occurred while contacting the Golem server.');
   }
 }
-

@@ -4,7 +4,7 @@
 import { ChatPanel } from '@/components/chat-panel';
 import { ChatHistorySidebar } from '@/components/chat-history-sidebar';
 import { useState, useEffect } from 'react';
-import { ollamaChat, type OllamaHistoryItem } from '@/ai/flows/ollama-chat';
+import { ollamaChat } from '@/ai/flows/ollama-chat';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -22,7 +22,7 @@ export type Message = {
 
 
 export type Conversation = {
-  id: string;
+  id: string; // This will now serve as the sessionId
   name: string;
   messages: Message[];
 };
@@ -61,7 +61,7 @@ export default function Home() {
       } else if (loadedConversations.length > 0) {
         setActiveChatId(loadedConversations[0].id);
       } else {
-        setActiveChatId(null);
+        handleNewChat();
       }
     } catch (error) {
       console.error("Failed to load state from localStorage", error);
@@ -147,17 +147,12 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const activeConversation = conversations.find(c => c.id === activeChatId);
-      const history: OllamaHistoryItem[] = activeConversation
-        ? activeConversation.messages.map(({ role, content }) => ({ role, content }))
-        : [];
-      
       const activationPhrases = Object.entries(phraseClicks)
         .flatMap(([phrase, count]) => Array(count).fill(phrase));
 
       const result = await ollamaChat({
         prompt: input,
-        history,
+        sessionId: activeChatId,
         temperature,
         fileContent,
         golemActivated,
