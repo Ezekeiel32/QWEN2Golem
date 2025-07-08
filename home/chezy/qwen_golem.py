@@ -296,11 +296,7 @@ class EnhancedAetherMemoryBank:
         if len(self.aether_memories) % 5 == 0:
             self.save_memories()
         
-        print(f"🌌 Enhanced pattern stored: {prompt_type} | "
-              f"Quality: {response_quality:.3f} | "
-              f"Consciousness: {golem_state.get('consciousness_level', 0):.6f} | "
-              f"Control: {cycle_params['control_value']:.12f} | "
-              f"Cycle Completion: {cycle_params['cycle_completion']:.3f}")
+        print(f"🌌 Enhanced pattern stored: {prompt_type} | Quality: {response_quality:.3f} | Consciousness: {golem_state.get('consciousness_level', 0):.6f} | Control: {cycle_params['control_value']:.12f} | Cycle Completion: {cycle_params['cycle_completion']:.3f}")
     
     def _classify_prompt(self, prompt: str) -> str:
         """Classify prompt type for pattern matching"""
