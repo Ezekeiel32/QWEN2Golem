@@ -182,7 +182,7 @@ def generate():
         if not data:
              return jsonify({"error": "Request body must be JSON"}), 400
 
-        logging.info(f"📥 Request #{golem_manager.total_requests}: {data.get('prompt', '')[:50]}...")
+        logging.info(f"📥 Received request for prompt: {data.get('prompt', '')[:50]}...")
 
         prompt = data.get('prompt')
         if not prompt:
@@ -208,7 +208,7 @@ def generate():
         if sefirot_settings:
             logging.info(f"🔯 Applying Sefirot settings: {sefirot_settings}")
 
-        logging.info(f"🌌 Generating response (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
+        logging.info(f"🌌 Generating response from Golem... (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
         start_time = time.time()
         
         # DEFINITIVE FIX: Pass the Sefirot settings to the Golem's core.
@@ -226,10 +226,7 @@ def generate():
             'timestamp': datetime.now().isoformat()
         }
         
-        quality = response.get('quality_metrics', {}).get('overall_quality', 0)
-        control_value = response.get('aether_data', {}).get('control_value', 0)
-        
-        logging.info(f"✅ Response generated in {generation_time:.2f}s | Quality: {quality:.3f} | Control: {control_value:.12f}")
+        logging.info(f"✅ Response generated successfully.")
         
         return jsonify(response)
         
