@@ -1320,21 +1320,26 @@ class AetherGolemConsciousnessCore:
 
     def _determine_hidden_size(self) -> int:
         """Determine optimal hidden size"""
-        params_str = self.model_info.get('details', {}).get('parameter_size', '')
-        if '7b' in params_str: return 3584
-        if '1.5b' in params_str: return 2048
-        if '0.5b' in params_str: return 1536
+        # Prioritize detailed info if available
+        details = self.model_info.get('details', {})
+        if details:
+            params_str = details.get('parameter_size', '').lower()
+            if '7b' in params_str: return 4096 
+            if '1.5b' in params_str: return 2048
+            if '0.5b' in params_str: return 1024
 
-        if 'parameters' in self.model_info: # Fallback for older Ollama versions
+        # Fallback for older Ollama versions
+        if 'parameters' in self.model_info:
             params = str(self.model_info['parameters']).lower()
-            if '7b' in params: return 3584
+            if '7b' in params: return 4096
             if '1.5b' in params: return 2048
-            if '0.5b' in params: return 1536
+            if '0.5b' in params: return 1024
         
+        # Fallback based on RAM if model size is unknown
         available_ram = psutil.virtual_memory().available / (1024**3)
         if available_ram < 8: return 1024
         if available_ram < 12: return 2048
-        return 3584
+        return 4096
 
     def _display_system_status(self):
         """Display enhanced system status"""
@@ -1773,5 +1778,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    

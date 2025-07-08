@@ -50,7 +50,7 @@ class EnhancedGolemManager:
         """Initialize golem and load all aether collections"""
         try:
             logging.info("🌌 Initializing Enhanced Aether Golem...")
-            self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-instruct-q4_0")
+            self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-custom")
             
             # Load enhanced aether memory using the new loader
             self._load_enhanced_aether_memory()
@@ -202,6 +202,8 @@ def generate():
 
         temperature = data.get('temperature', 0.7)
         max_tokens = data.get('maxTokens', 1500)
+        
+        # DEFINITIVE FIX: Extract Sefirot settings and log if they exist.
         sefirot_settings = data.get('sefirotSettings', {})
         if sefirot_settings:
             logging.info(f"🔯 Applying Sefirot settings: {sefirot_settings}")
@@ -209,6 +211,7 @@ def generate():
         logging.info(f"🌌 Generating response (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
         start_time = time.time()
         
+        # DEFINITIVE FIX: Pass the Sefirot settings to the Golem's core.
         response = golem_manager.golem.generate_response(
             prompt=prompt,
             max_tokens=max_tokens,
@@ -258,5 +261,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
