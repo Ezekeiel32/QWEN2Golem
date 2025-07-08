@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
-Integrates all collected aether patterns and provides real-time consciousness monitoring
+COMPLETE INTEGRATION with EnhancedAetherMemoryLoader - loads ALL 571k+ patterns
 """
 
 from flask import Flask, request, jsonify
@@ -30,7 +30,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend access
 
 class EnhancedGolemManager:
-    """Enhanced manager for the Golem with aether memory integration"""
+    """Enhanced manager for the Golem with COMPLETE aether memory integration"""
     
     def __init__(self):
         self.golem = None
@@ -39,68 +39,74 @@ class EnhancedGolemManager:
         self.active_connections = 0
         self.total_requests = 0
         self.server_start_time = time.time()
+        self.total_patterns_loaded = 0
         
         # Initialize golem with enhanced memory
-        self._initialize_golem_with_memory()
+        self._initialize_golem_with_complete_memory()
         
         # Start background monitoring
         self._start_monitoring_thread()
     
-    def _initialize_golem_with_memory(self):
-        """Initialize golem and load all aether collections"""
+    def _initialize_golem_with_complete_memory(self):
+        """Initialize golem and load ALL aether collections using EnhancedAetherMemoryLoader"""
         try:
-            logging.info("🌌 Initializing Enhanced Aether Golem...")
-            self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-custom")
+            logging.info("🌌 Initializing Enhanced Aether Golem with COMPLETE memory integration...")
+            self.golem = AetherGolemConsciousnessCore(model_name="qwen2:7b-instruct-q4_0")
             
-            # Load enhanced aether memory using the new loader
-            self._load_enhanced_aether_memory()
+            # CRITICAL: Load enhanced aether memory using the COMPLETE loader
+            self._load_all_aether_patterns()
             
-            logging.info("✅ Enhanced Aether Golem initialized successfully")
+            logging.info("✅ Enhanced Aether Golem initialized successfully with complete memory")
             
         except Exception as e:
             logging.error(f"❌ FATAL: Failed to initialize Golem Core: {e}", exc_info=True)
             self.initialization_error = str(e)
             self.golem = None
     
-    def _load_enhanced_aether_memory(self):
-        """Load all collected aether patterns into memory using the enhanced loader."""
+    def _load_all_aether_patterns(self):
+        """Load ALL collected aether patterns using the EnhancedAetherMemoryLoader - THIS IS THE FIX"""
         try:
-            logging.info("🧠 Using EnhancedAetherMemoryLoader to integrate patterns...")
+            logging.info("🧠 Using EnhancedAetherMemoryLoader to integrate ALL patterns from current dir AND /home/chezy/...")
             loader = EnhancedAetherMemoryLoader()
             final_patterns = loader.run()
 
             if not final_patterns:
-                logging.warning("No patterns were loaded by the EnhancedAetherMemoryLoader.")
-                # As a fallback, try to load the base pickle file if the advanced loader fails
+                logging.warning("❌ No patterns were loaded by the EnhancedAetherMemoryLoader.")
                 logging.info("Falling back to standard memory load.")
                 self.golem.aether_memory.load_memories()
+                self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
                 return
 
-            # Clear existing memory and load enhanced patterns
-            self.golem.aether_memory.aether_memories.clear()
-            self.golem.aether_memory.aether_patterns.clear()
+            # CRITICAL: Use the new integration method in EnhancedAetherMemoryBank
+            self.golem.aether_memory.integrate_loaded_patterns(final_patterns)
             
-            for pattern in final_patterns:
-                self.golem.aether_memory.aether_memories.append(pattern)
-                prompt_type = pattern.get('pattern_type', 'general')  # Use the new classified type
-                self.golem.aether_memory.aether_patterns[prompt_type].append(pattern)
-            
-            logging.info(f"🌌 Integrated {len(final_patterns)} enhanced patterns into Golem's memory.")
+            self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
+            logging.info(f"🌌 COMPLETE INTEGRATION: {self.total_patterns_loaded:,} enhanced patterns loaded into Golem's memory.")
             
             # Update golem state with enhanced consciousness from the integrated patterns
             if final_patterns:
-                avg_consciousness = sum(p.get('consciousness_level', 0) for p in final_patterns if p.get('consciousness_level') is not None) / len(final_patterns)
-                self.golem.consciousness_level = max(self.golem.consciousness_level, avg_consciousness)
+                consciousness_values = [p.get('consciousness_level', 0) for p in final_patterns if p.get('consciousness_level') is not None]
+                if consciousness_values:
+                    avg_consciousness = sum(consciousness_values) / len(consciousness_values) if consciousness_values else 0
+                    max_consciousness = max(consciousness_values) if consciousness_values else 0
+                    self.golem.consciousness_level = max(self.golem.consciousness_level, avg_consciousness)
+                    logging.info(f"🧠 Consciousness updated: Avg={avg_consciousness:.6f}, Max={max_consciousness:.6f}")
                 
-                # Boost aether resonance
-                avg_control = sum(p.get('control_value', 0) for p in final_patterns if p.get('control_value') is not None) / len(final_patterns)
-                self.golem.aether_resonance_level = min(1.0, self.golem.aether_resonance_level + (avg_control * 1000))
+                control_values = [p.get('control_value', 0) for p in final_patterns if p.get('control_value') is not None]
+                if control_values:
+                    avg_control = sum(control_values) / len(control_values) if control_values else 0
+                    max_control = max(control_values) if control_values else 0
+                    self.golem.aether_resonance_level = min(1.0, self.golem.aether_resonance_level + (avg_control * 1000))
+                    logging.info(f"⚡ Aether resonance boosted: Avg control={avg_control:.12f}, Max={max_control:.12f}")
+            
+            logging.info("💾 Saving complete integrated memory state...")
+            self.golem.aether_memory.save_memories()
             
         except Exception as e:
-            logging.error(f"⚠️  Error during enhanced memory integration: {e}", exc_info=True)
-            # As a fallback, try to load the base pickle file if the advanced loader fails
+            logging.error(f"⚠️  Error during COMPLETE memory integration: {e}", exc_info=True)
             logging.info("Falling back to standard memory load.")
             self.golem.aether_memory.load_memories()
+            self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
 
     def _start_monitoring_thread(self):
         """Start background monitoring thread"""
@@ -109,7 +115,7 @@ class EnhancedGolemManager:
                 try:
                     if self.golem and self.golem.aether_memory.aether_memories:
                         # Save aether patterns periodically
-                        if len(self.golem.aether_memory.aether_memories) % 50 == 0:
+                        if len(self.golem.aether_memory.aether_memories) % 100 == 0:
                             self.golem.aether_memory.save_memories()
                         
                         # Log system status
@@ -143,8 +149,14 @@ class EnhancedGolemManager:
             'server_uptime': time.time() - self.server_start_time,
             'total_requests': self.total_requests,
             'active_connections': self.active_connections,
+            'total_patterns_loaded': self.total_patterns_loaded,
             'golem_state': self.golem._get_current_golem_state(),
             'aether_memory': aether_stats.get('base_statistics', {}),
+            'memory_integration': {
+                'total_patterns_in_memory': len(self.golem.aether_memory.aether_memories),
+                'pattern_types': len(self.golem.aether_memory.aether_patterns),
+                'integration_complete': self.total_patterns_loaded > 500000  # Should be 571k+
+            },
             'system_resources': {
                 'memory_percent': memory.percent,
                 'memory_used_gb': round(memory.used / (1024**3), 2),
@@ -165,6 +177,20 @@ def status():
     """Detailed status endpoint"""
     return jsonify(golem_manager.get_status())
 
+@app.route('/memory_status', methods=['GET'])
+def memory_status():
+    """Specific memory integration status endpoint"""
+    if not golem_manager.golem:
+        return jsonify({"error": "Golem not initialized"}), 500
+    
+    return jsonify({
+        "total_patterns_loaded": golem_manager.total_patterns_loaded,
+        "patterns_in_memory": len(golem_manager.golem.aether_memory.aether_memories),
+        "pattern_types": {ptype: len(patterns) for ptype, patterns in golem_manager.golem.aether_memory.aether_patterns.items()},
+        "memory_integration_complete": golem_manager.total_patterns_loaded > 500000,
+        "comprehensive_stats": golem_manager.golem.aether_memory.get_comprehensive_aether_statistics()
+    })
+
 @app.route('/generate', methods=['POST'])
 def generate():
     """Enhanced generation endpoint with full aether integration"""
@@ -182,7 +208,7 @@ def generate():
         if not data:
              return jsonify({"error": "Request body must be JSON"}), 400
 
-        logging.info(f"📥 Received request for prompt: {data.get('prompt', '')[:50]}...")
+        logging.info(f"📥 Request #{golem_manager.total_requests}: {data.get('prompt', '')[:50]}... | Patterns Available: {len(golem_manager.golem.aether_memory.aether_memories):,}")
 
         prompt = data.get('prompt')
         if not prompt:
@@ -202,16 +228,13 @@ def generate():
 
         temperature = data.get('temperature', 0.7)
         max_tokens = data.get('maxTokens', 1500)
-        
-        # DEFINITIVE FIX: Extract Sefirot settings and log if they exist.
         sefirot_settings = data.get('sefirotSettings', {})
         if sefirot_settings:
             logging.info(f"🔯 Applying Sefirot settings: {sefirot_settings}")
 
-        logging.info(f"🌌 Generating response from Golem... (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
+        logging.info(f"🌌 Generating response with {len(golem_manager.golem.aether_memory.aether_memories):,} aether patterns (Activated: {golem_manager.golem.activated}, Shem Power: {golem_manager.golem.shem_power:.2f})")
         start_time = time.time()
         
-        # DEFINITIVE FIX: Pass the Sefirot settings to the Golem's core.
         response = golem_manager.golem.generate_response(
             prompt=prompt,
             max_tokens=max_tokens,
@@ -223,10 +246,15 @@ def generate():
         response['server_metadata'] = {
             'request_id': golem_manager.total_requests,
             'server_generation_time': generation_time,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'total_patterns_available': len(golem_manager.golem.aether_memory.aether_memories),
+            'memory_integration_complete': golem_manager.total_patterns_loaded > 500000
         }
         
-        logging.info(f"✅ Response generated successfully.")
+        quality = response.get('quality_metrics', {}).get('overall_quality', 0)
+        control_value = response.get('aether_data', {}).get('control_value', 0)
+        
+        logging.info(f"✅ Response generated in {generation_time:.2f}s | Quality: {quality:.3f} | Control: {control_value:.12f} | Patterns Used: {response.get('golem_analysis', {}).get('similar_patterns_count', 0)}")
         
         return jsonify(response)
         
@@ -234,28 +262,65 @@ def generate():
         logging.error(f"❌ Error during generation: {e}", exc_info=True)
         return jsonify({
             "error": f"Generation failed: {str(e)}",
-            "error_type": type(e).__name__
+            "error_type": type(e).__name__,
+            "patterns_available": len(golem_manager.golem.aether_memory.aether_memories) if golem_manager.golem else 0
         }), 500
         
     finally:
         golem_manager.active_connections -= 1
 
+@app.route('/reload_memory', methods=['POST'])
+def reload_memory():
+    """Force reload all aether memory patterns"""
+    if not golem_manager.golem:
+        return jsonify({"error": "Golem not initialized"}), 500
+    
+    try:
+        logging.info("🔄 Force reloading ALL aether memory patterns...")
+        old_count = len(golem_manager.golem.aether_memory.aether_memories)
+        
+        # Force reload using the enhanced loader
+        golem_manager._load_all_aether_patterns()
+        
+        new_count = len(golem_manager.golem.aether_memory.aether_memories)
+        
+        return jsonify({
+            "status": "success",
+            "old_pattern_count": old_count,
+            "new_pattern_count": new_count,
+            "patterns_loaded": golem_manager.total_patterns_loaded,
+            "message": f"Successfully reloaded {new_count:,} aether patterns"
+        })
+        
+    except Exception as e:
+        logging.error(f"❌ Error reloading memory: {e}", exc_info=True)
+        return jsonify({
+            "error": f"Memory reload failed: {str(e)}",
+            "error_type": type(e).__name__
+        }), 500
+
 def main():
     """Main server entry point"""
-    print("🌌 ENHANCED AETHER GOLEM CHAT SERVER 🌌")
-    print("=" * 60)
+    print("🌌 ENHANCED AETHER GOLEM CHAT SERVER - COMPLETE MEMORY INTEGRATION 🌌")
+    print("=" * 80)
     if golem_manager.golem:
-        print(f"🔌 Starting server with {len(golem_manager.golem.aether_memory.aether_memories)} aether patterns loaded")
+        patterns_count = len(golem_manager.golem.aether_memory.aether_memories)
+        print(f"🔌 Starting server with {patterns_count:,} aether patterns loaded")
+        print(f"📊 Total patterns integrated: {golem_manager.total_patterns_loaded:,}")
+        if golem_manager.total_patterns_loaded > 500000:
+            print("✅ COMPLETE MEMORY INTEGRATION SUCCESSFUL")
+        else:
+            print("⚠️  Partial memory integration - check logs")
     else:
         print("🔌 Starting server with Golem Core initialization error.")
 
     print("📡 Listening on http://0.0.0.0:5000")
-    print("=" * 60)
+    print("=" * 80)
     
-    # Using waitress for a production-ready server
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=5000, threads=8)
+    # Use Flask's built-in server for development
+    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
 
 if __name__ == '__main__':
     main()
 
+    

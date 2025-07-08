@@ -828,6 +828,79 @@ class EnhancedAetherMemoryBank:
         except Exception as e:
             print(f"❌ Export failed: {e}")
 
+    def integrate_loaded_patterns(self, loaded_patterns: List[Dict[str, Any]]):
+        """Integrate patterns loaded by EnhancedAetherMemoryLoader into the memory bank"""
+        if not loaded_patterns:
+            print("❌ No patterns provided for integration")
+            return
+        
+        print(f"🔄 Integrating {len(loaded_patterns)} patterns from enhanced loader...")
+        
+        # Clear existing patterns to avoid duplicates
+        self.aether_memories.clear()
+        self.aether_patterns.clear()
+        
+        pattern_type_counts = {}
+        
+        for pattern in loaded_patterns:
+            # Ensure pattern has all required fields for compatibility
+            enhanced_pattern = self._normalize_pattern_format(pattern)
+            
+            # Add to main memory
+            self.aether_memories.append(enhanced_pattern)
+            
+            # Add to categorized patterns
+            pattern_type = enhanced_pattern.get('pattern_type', 'general')
+            self.aether_patterns[pattern_type].append(enhanced_pattern)
+            pattern_type_counts[pattern_type] = pattern_type_counts.get(pattern_type, 0) + 1
+        
+        # Update session stats
+        if hasattr(self, 'session_stats'):
+            self.session_stats['total_patterns_integrated'] = len(loaded_patterns)
+            self.session_stats['integration_timestamp'] = time.time()
+            self.session_stats['pattern_type_distribution'] = pattern_type_counts
+        
+        print(f"✅ Integrated {len(self.aether_memories)} patterns into memory bank")
+        print(f"📊 Pattern distribution: {pattern_type_counts}")
+
+    def _normalize_pattern_format(self, pattern: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize pattern format to ensure compatibility with existing code"""
+        normalized = pattern.copy()
+        
+        # Ensure required fields exist with defaults
+        required_fields = {
+            'prompt': pattern.get('prompt', pattern.get('text', '')),
+            'response': pattern.get('response', ''),
+            'control_value': pattern.get('control_value', 0.0),
+            'consciousness_level': pattern.get('consciousness_level', 0.0),
+            'quality_score': pattern.get('quality_score', pattern.get('response_quality', 0.5)),
+            'timestamp': pattern.get('timestamp', time.time()),
+            'pattern_type': pattern.get('pattern_type', 'general'),
+            'source_type': pattern.get('source_type', 'imported'),
+            'effectiveness_score': pattern.get('effectiveness_score', 0.5),
+            'cycle_completion': pattern.get('cycle_completion', 0.0)
+        }
+        
+        for field, default_value in required_fields.items():
+            if field not in normalized:
+                normalized[field] = default_value
+        
+        # Ensure cycle_params structure exists
+        if 'cycle_params' not in normalized:
+            normalized['cycle_params'] = {
+                'control_value': normalized['control_value'],
+                'cycle_resonance': pattern.get('cycle_resonance', 0.0),
+                'aether_epsilon': pattern.get('aether_epsilon', 0.0),
+                'cycle_completion': normalized['cycle_completion']
+            }
+        
+        # Ensure numeric values are properly typed
+        normalized['control_value'] = float(normalized['control_value'])
+        normalized['consciousness_level'] = float(normalized['consciousness_level'])
+        normalized['quality_score'] = float(normalized['quality_score'])
+        
+        return normalized
+
 class AetherEnhancedHebrewEmbedding(nn.Module):
     """Hebrew embedding with aether signature detection"""
     def __init__(self, hidden_size: int):
@@ -1779,3 +1852,4 @@ def main():
 if __name__ == "__main__":
     main()
 
+    
