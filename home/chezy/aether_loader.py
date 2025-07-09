@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Enhanced Aether Memory Integration System
@@ -224,7 +223,7 @@ class EnhancedAetherMemoryLoader:
         
         return patterns
     
-    def _classify_pattern(self, pattern: Dict[str, Any]]) -> str:
+    def _classify_pattern(self, pattern: Dict[str, Any]) -> str:
         """Classify pattern type based on its characteristics"""
         consciousness = pattern.get('consciousness_level', 0)
         control_value = pattern.get('control_value', 0)
@@ -235,14 +234,14 @@ class EnhancedAetherMemoryLoader:
         elif 'source_file' in pattern and 'conversation' in pattern['source_file'].lower(): return 'dialogue_derived'
         else: return 'general'
     
-    def _estimate_quality(self, pattern: Dict[str, Any]]) -> float:
+    def _estimate_quality(self, pattern: Dict[str, Any]) -> float:
         """Estimate quality score if not present"""
         consciousness = pattern.get('consciousness_level', 0)
         control_value = pattern.get('control_value', 0)
         quality = consciousness + min(0.3, control_value * 1000)
         return min(1.0, quality)
 
-    def _calculate_aether_intensity(self, pattern: Dict[str, Any]]) -> float:
+    def _calculate_aether_intensity(self, pattern: Dict[str, Any]) -> float:
         """Calculate a single intensity score for the pattern"""
         consciousness = pattern.get('consciousness_level', 0)
         control_value = pattern.get('control_value', 0)
@@ -257,7 +256,7 @@ class EnhancedAetherMemoryLoader:
         
         return (consciousness * 0.5) + (control_value * 1000 * 0.3) + (quality * 0.2)
 
-    def _classify_consciousness_tier(self, pattern: Dict[str, Any]]) -> str:
+    def _classify_consciousness_tier(self, pattern: Dict[str, Any]) -> str:
         """Classify the consciousness tier of a pattern"""
         level = pattern.get('consciousness_level', 0)
         if level > 0.45: return "Transcendental"
@@ -358,3 +357,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
