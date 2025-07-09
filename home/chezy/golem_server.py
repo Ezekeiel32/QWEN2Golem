@@ -193,7 +193,7 @@ class ConversationContextManager:
     def _cleanup_old_conversations(self):
         """Remove conversations older than timeout"""
         current_time = datetime.now()
-        sessions_to_remove = [sid for sid, meta in self.conversation_metadata.items() if current_time - meta['last_updated'] > self.context_timeout]
+        sessions_to_remove = [sid for sid, meta in self.conversation_metadata.items() if (datetime.now() - meta['last_updated']).total_seconds() > self.context_timeout.total_seconds()]
         
         for session_id in sessions_to_remove:
             del self.conversations[session_id]
@@ -479,17 +479,30 @@ def reload_memory():
 
 @app.route('/conversation/<session_id>', methods=['GET'])
 def get_conversation(session_id):
+    """Get conversation history and insights for a specific session."""
     if not golem_manager.golem:
         return jsonify({"error": "Golem not initialized"}), 500
+    
+    if session_id not in golem_manager.context_manager.conversations:
+        return jsonify({"error": "Session ID not found"}), 404
+
     context = golem_manager.context_manager.get_conversation_context(session_id)
     insights = golem_manager.context_manager.get_context_insights(session_id)
     patterns = golem_manager.context_manager.get_conversation_aether_patterns(session_id)
-    return jsonify({"session_id": session_id, "conversation_history": context, "insights": insights, "extracted_aether_patterns": patterns})
+    
+    return jsonify({
+        "session_id": session_id, 
+        "conversation_history": context, 
+        "insights": insights, 
+        "extracted_aether_patterns": patterns
+    })
 
 @app.route('/conversations', methods=['GET'])
 def list_conversations():
+    """List all active conversations."""
     if not golem_manager.golem:
         return jsonify({"error": "Golem not initialized"}), 500
+    
     conversations = []
     for session_id, metadata in golem_manager.context_manager.conversation_metadata.items():
         conversations.append({
@@ -500,6 +513,7 @@ def list_conversations():
             "preview": golem_manager.context_manager.conversations[session_id][0]['content'][:100] if golem_manager.context_manager.conversations[session_id] else ""
         })
     return jsonify({"conversations": conversations})
+
 
 def main():
     """Main server entry point"""
@@ -523,5 +537,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
