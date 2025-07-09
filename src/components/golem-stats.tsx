@@ -137,6 +137,9 @@ export function GolemStats({ stats }: GolemStatsProps) {
     );
   }
 
+  const dominantSefiraName = golem_analysis?.dominant_sefira?.[0] ?? 'N/A';
+  const sefirotActivations = golem_analysis?.sefiroth_activations ?? {};
+
   return (
     <div className="mt-4 space-y-4 rounded-lg bg-card/50 p-2">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -233,12 +236,12 @@ export function GolemStats({ stats }: GolemStatsProps) {
           <div className="text-center text-sm">
             Dominant Sefira:{' '}
             <Badge variant="outline" className="border-accent text-accent">
-              {golem_analysis.dominant_sefira[0]}
+              {dominantSefiraName}
             </Badge>
           </div>
           <SefirotDisplay
-            sefirot={golem_analysis.sefiroth_activations}
-            dominant={golem_analysis.dominant_sefira[0]}
+            sefirot={sefirotActivations}
+            dominant={dominantSefiraName}
           />
         </CardContent>
       </Card>
