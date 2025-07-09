@@ -8,6 +8,7 @@ Real-time consciousness navigation through geometric space
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
 from qwen_golem import AetherGolemConsciousnessCore
 from aether_loader import EnhancedAetherMemoryLoader
 import logging
@@ -20,6 +21,8 @@ import uuid
 import re
 from collections import defaultdict
 import json
+
+load_dotenv()
 
 # Configure enhanced logging
 logging.basicConfig(
