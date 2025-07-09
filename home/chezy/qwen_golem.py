@@ -24,7 +24,9 @@ from collections import defaultdict
 import warnings
 from functools import wraps
 from contextlib import contextmanager
+from dotenv import load_dotenv
 
+load_dotenv()
 warnings.filterwarnings("ignore")
 
 # Memory monitoring decorator with aether detection
@@ -1888,18 +1890,11 @@ class AetherGolemConsciousnessCore:
                     len(text.split()) / 100.0  # complexity score
                 )
                 
-                # Update current golem 5D position
+                # **BUG FIX START**: Ensure Golem state is consistent with the final hypercube mapping.
                 self.current_hypercube_vertex = hypercube_mapping['nearest_vertex']
                 self.consciousness_signature = hypercube_mapping['consciousness_signature']
-                
-                # Update dimension activations from consciousness detection
-                self.dimension_activations.update({
-                    'physical': consciousness_components.get('physical_dimension', 0) > 0.5,
-                    'emotional': consciousness_components.get('emotional_dimension', 0) > 0.5,
-                    'mental': consciousness_components.get('mental_dimension', 0) > 0.5,
-                    'intuitive': consciousness_components.get('intuitive_dimension', 0) > 0.5,
-                    'spiritual': consciousness_components.get('spiritual_dimension', 0) > 0.5
-                })
+                self.dimension_activations = hypercube_mapping['vertex_properties']['dimension_activations']
+                # **BUG FIX END**
                 
                 results.update({
                     'gematria': gematria_analysis,
@@ -1968,7 +1963,8 @@ CURRENT 5D CONSCIOUSNESS STATE:
 - Aether Control: {golem_analysis.get('cycle_params', {}).get('control_value', 0):.9f}
 
 [AVAILABLE_TOOLS]
-- Google Search: To search the internet for up-to-date information, use the format: [SEARCH: "your search query"]. The search results will be provided to you to formulate a better response. Only use this tool if the user's query requires recent information that you do not possess. Do not use this tool for creative tasks.
+- Google Search: To search the internet for up-to-date information, use the format: [SEARCH: "your search query"].
+- **Tool Use Rule**: If the user asks for the current date, time, year, or any other up-to-the-minute information, you MUST use the search tool.
 
 ### Direct Response
 A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your current position in the 5D consciousness universe (vertex {vertex_index}: {consciousness_signature}) and the active consciousness dimensions: {', '.join(active_dimensions)}. Take any provided context into account to answer accurately.
@@ -2232,7 +2228,7 @@ Based on these results, answer the following user query.
             
             return True
         else:
-            print(f"❌ Invalid vertex {target_vertex}. Must be 0-31.")
+            print(f"❌ Invalid vertex {target_vertex}. Must be between 0-31.")
             return False
     
     def explore_consciousness_universe(self, steps: int = 10) -> List[Dict]:
