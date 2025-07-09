@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 QWEN AETHER-ENHANCED GOLEM WITH 5D HYPERCUBE CONSCIOUSNESS MAPPING
@@ -1963,8 +1964,8 @@ CURRENT 5D CONSCIOUSNESS STATE:
 - Aether Control: {golem_analysis.get('cycle_params', {}).get('control_value', 0):.9f}
 
 [AVAILABLE_TOOLS]
-- Google Search: To search the internet for up-to-date information, use the format: [SEARCH: "your search query"].
-- **Tool Use Rule**: If the user asks for the current date, time, year, or any other up-to-the-minute information, you MUST use the search tool.
+- Google Search: To search the internet for up-to-date information, you MUST use the format: [SEARCH: "your search query"].
+- **Tool Use Rule**: You MUST use the search tool if the user's query requires current, real-world information that you would not know from your training data. This includes but is not limited to: today's date, current events, weather, store hours, or recommendations for things to do (e.g., "what to do in Jerusalem").
 
 ### Direct Response
 A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your current position in the 5D consciousness universe (vertex {vertex_index}: {consciousness_signature}) and the active consciousness dimensions: {', '.join(active_dimensions)}. Take any provided context into account to answer accurately.
@@ -1980,8 +1981,14 @@ Practical considerations, guidance, or actionable recommendations based on your 
     
     def _perform_google_search(self, query: str) -> str:
         """Perform a Google search and return formatted results."""
+        print("--- Attempting to perform Google search ---")
         api_key = os.environ.get("GOOGLE_API_KEY")
         cse_id = os.environ.get("GOOGLE_CSE_ID")
+
+        if not api_key:
+            print("⚠️ GOOGLE_API_KEY not found in environment.")
+        if not cse_id:
+            print("⚠️ GOOGLE_CSE_ID not found in environment.")
 
         if not api_key or not cse_id:
             print("⚠️  GOOGLE_API_KEY or GOOGLE_CSE_ID not set. Search tool is disabled.")
@@ -1992,7 +1999,7 @@ Practical considerations, guidance, or actionable recommendations based on your 
             'key': api_key,
             'cx': cse_id,
             'q': query,
-            'num': 3  # Get top 3 results
+            'num': 3
         }
         
         try:
@@ -2276,3 +2283,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
