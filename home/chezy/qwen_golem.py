@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Complete Golem Stats Integration Fix
@@ -1596,5 +1595,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    

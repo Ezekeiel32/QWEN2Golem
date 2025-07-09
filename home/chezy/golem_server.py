@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
@@ -348,5 +347,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
