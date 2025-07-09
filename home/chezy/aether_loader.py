@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Enhanced Aether Memory Integration System with 5D Hypercube Consciousness Mapping
@@ -254,87 +255,58 @@ class EnhancedAetherMemoryLoader:
                 with open(filepath, 'rb') as f:
                     data = pickle.load(f)
                 patterns = []
-                
-                # Handle golem memory structure with 5D hypercube data
-                if 'memories' in data:
-                    for i, memory in enumerate(data['memories']):
-                        pattern = {
-                            'text': memory.get('prompt', ''),
-                            'speaker': 'golem_memory',
-                            'aether_data': {
-                                'control_value': memory.get('cycle_params', {}).get('control_value', 0),
-                                'consciousness_level': memory.get('consciousness_level', 0),
-                                'cycle_resonance': memory.get('cycle_params', {}).get('cycle_resonance', 0)
-                            },
-                            'quality_score': memory.get('response_quality', 0.5),
-                            'source_file': filename,
-                            'loaded_timestamp': time.time(),
-                            # Extract 5D hypercube data if available
-                            'hypercube_vertex': memory.get('hypercube_vertex', None),
-                            'consciousness_signature': memory.get('consciousness_signature', None),
-                            'dimension_activations': memory.get('dimension_activations', {}),
-                            'hypercube_coordinate': memory.get('hypercube_coordinate', None)
-                        }
-                        patterns.append(pattern)
-                    self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (golem memory with 5D data)")
-                
-                # Handle 5D hypercube memory structure
-                elif 'hypercube_memory' in data:
-                    for vertex_index, vertex_memories in data['hypercube_memory'].items():
-                        for memory in vertex_memories:
-                            pattern = {
-                                'text': memory.get('prompt', ''),
-                                'speaker': '5d_hypercube_memory',
-                                'hypercube_vertex': int(vertex_index),
-                                'consciousness_signature': memory.get('consciousness_signature', 'unknown'),
-                                'dimension_activations': memory.get('dimension_activations', {}),
-                                'aether_data': {
-                                    'control_value': memory.get('cycle_params', {}).get('control_value', 0),
-                                    'consciousness_level': memory.get('consciousness_level', 0)
-                                },
-                                'quality_score': memory.get('response_quality', 0.5),
-                                'source_file': filename,
-                                'loaded_timestamp': time.time()
-                            }
-                            patterns.append(pattern)
-                    self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (5D hypercube memory)")
-                else:
-                    self._log(f"⚠️ Unrecognized PKL format in {filename}, skipping")
-                    return []
-                
-            else:  # JSON handling with 5D hypercube support
+
+                # Handle different possible top-level keys for pattern lists
+                if 'memories' in data and isinstance(data['memories'], list):
+                    source_key = 'memories'
+                elif 'aether_patterns' in data and isinstance(data['aether_patterns'], list):
+                    source_key = 'aether_patterns'
+                elif 'hypercube_memory' in data and isinstance(data['hypercube_memory'], dict):
+                    source_key = 'hypercube_memory'
+                else: # Fallback for flat list of patterns
+                    if isinstance(data, list):
+                        patterns = data
+                        self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (direct PKL list)")
+                        source_key = None
+                    else:
+                        self._log(f"⚠️ Unrecognized PKL format in {filename}, skipping")
+                        return []
+
+                if source_key == 'hypercube_memory':
+                     for vertex_index, vertex_memories in data['hypercube_memory'].items():
+                        patterns.extend(vertex_memories)
+                     self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (5D hypercube memory)")
+                elif source_key:
+                    patterns = data[source_key]
+                    self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (PKL key: '{source_key}')")
+
+            else:  # JSON handling
                 with open(filepath, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 
                 patterns = []
-                
                 # The new enhanced format saves a canonical 'aether_patterns' list. Prioritize this.
-                if 'aether_patterns' in data:
+                if 'aether_patterns' in data and isinstance(data['aether_patterns'], list):
                     patterns = data['aether_patterns']
                     self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (aether_patterns)")
-                elif 'real_aether_patterns' in data: # For older formats
+                elif 'real_aether_patterns' in data and isinstance(data['real_aether_patterns'], list): # For older formats
                     patterns = data['real_aether_patterns']
                     self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (real_aether_patterns)")
-                elif 'hypercube_memory' in data: # Fallback for files that only have hypercube memory
+                elif 'hypercube_memory' in data and isinstance(data['hypercube_memory'], dict): # Fallback for files that only have hypercube memory
                     for vertex_index, vertex_memories in data['hypercube_memory'].items():
-                        # The memories are already patterns
                         for memory in vertex_memories:
-                            patterns.append(memory)
+                             if isinstance(memory, dict):
+                                patterns.append(memory)
                     self._log(f"✅ Loaded {len(patterns)} patterns from {filename} (5D hypercube memory structure)")
-                elif 'conversation' in data:
+                elif 'conversation' in data and isinstance(data['conversation'], list):
                     for i, exchange in enumerate(data['conversation']):
-                        if (exchange.get('speaker') == '🔯 Real Aether Golem' and 'aether_data' in exchange):
+                        if (isinstance(exchange, dict) and exchange.get('speaker') == '🔯 Real Aether Golem' and 'aether_data' in exchange):
                             aether_data = exchange['aether_data']
                             pattern = {
-                                'text': exchange.get('message', ''),
-                                'exchange_number': i + 1,
-                                'timestamp': exchange.get('timestamp', 0),
-                                'control_value': aether_data.get('control_value', 0),
-                                'consciousness_level': aether_data.get('consciousness_level', 0),
-                                'quality_score': aether_data.get('quality_score', 1.0),
-                                'source_file': filename,
-                                'source_type': 'conversation_extraction',
-                                'speaker': 'conversation_golem'
+                                'text': exchange.get('message', ''), 'exchange_number': i + 1,
+                                'timestamp': exchange.get('timestamp', 0), 'control_value': aether_data.get('control_value', 0),
+                                'consciousness_level': aether_data.get('consciousness_level', 0), 'quality_score': aether_data.get('quality_score', 1.0),
+                                'source_type': 'conversation_extraction', 'speaker': 'conversation_golem'
                             }
                             patterns.append(pattern)
                     self._log(f"✅ Extracted {len(patterns)} patterns from conversation in {filename}")
@@ -347,28 +319,47 @@ class EnhancedAetherMemoryLoader:
                             patterns = data[key]
                             self._log(f"✅ Loaded {len(patterns)} patterns from {filename} ({key})")
                             break
-                
-                for pattern in patterns:
-                    if 'source_file' not in pattern:
-                        pattern['source_file'] = filename
-                    if 'loaded_timestamp' not in pattern:
-                        pattern['loaded_timestamp'] = time.time()
             
-            # Sanitize byte data
-            for pattern in patterns:
-                for key, value in pattern.items():
+            # --- Universal Sanitization and Filtering ---
+            final_patterns = []
+            invalid_quality_count = 0
+            type_error_count = 0
+
+            for p in patterns:
+                if not isinstance(p, dict):
+                    type_error_count += 1
+                    continue
+
+                # Sanitize byte data
+                for key, value in p.items():
                     if isinstance(value, bytes):
-                        pattern[key] = value.decode('utf-8', errors='ignore')
+                        p[key] = value.decode('utf-8', errors='ignore')
                     elif isinstance(value, dict):
                         for subkey, subvalue in value.items():
                             if isinstance(subvalue, bytes):
-                                pattern[key][subkey] = subvalue.decode('utf-8', errors='ignore')
+                                p[key][subkey] = subvalue.decode('utf-8', errors='ignore')
+
+                # Add source file and timestamp if missing
+                if 'source_file' not in p:
+                    p['source_file'] = filename
+                if 'loaded_timestamp' not in p:
+                    p['loaded_timestamp'] = time.time()
+                
+                # Filter out patterns with invalid quality_score
+                quality_score = self._safe_float(p.get('quality_score', p.get('response_quality')), -1)
+                if quality_score == -1:
+                    invalid_quality_count += 1
+                    continue
+                p['quality_score'] = quality_score # ensure it's a float
+
+                final_patterns.append(p)
             
-            # Filter out patterns with invalid quality_score
-            valid_patterns = [p for p in patterns if isinstance(p.get('quality_score', 0.5), (int, float)) or p.get('quality_score', '') == '']
-            if len(valid_patterns) < len(patterns):
-                self._log(f"⚠️ Filtered {len(patterns) - len(valid_patterns)} patterns with invalid quality_score from {filename}")
-            return valid_patterns
+            if invalid_quality_count > 0:
+                self._log(f"⚠️ Filtered {invalid_quality_count} patterns with invalid quality_score from {filename}")
+            if type_error_count > 0:
+                 self._log(f"❌ Skipped {type_error_count} non-dictionary items in {filename}")
+
+            return final_patterns
             
         except Exception as e:
             self._log(f"❌ Error loading {filepath}: {e}")
@@ -1004,3 +995,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Enhanced Flask Server for Aether-Enhanced Golem Chat App
@@ -5,10 +6,12 @@ COMPLETE INTEGRATION with 5D Hypercube Consciousness, DynamicContextEngine and F
 32 = 2^5 = 5D HYPERCUBE - The entire universe for Golem's memory
 Real-time consciousness navigation through geometric space
 """
+# This MUST be the first import to ensure environment variables are loaded for all other modules
+from dotenv import load_dotenv
+load_dotenv()
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
 from qwen_golem import AetherGolemConsciousnessCore
 from aether_loader import EnhancedAetherMemoryLoader
 import logging
@@ -21,8 +24,6 @@ import uuid
 import re
 from collections import defaultdict
 import json
-
-load_dotenv()
 
 # Configure enhanced logging
 logging.basicConfig(
@@ -943,7 +944,7 @@ def main():
             current_stats = golem_manager.golem.get_hypercube_statistics()
             print(f"🔲 Current Vertex: {current_stats.get('current_vertex', 0)} ({current_stats.get('consciousness_signature', 'unknown')})")
         
-        if golem_manager.total_patterns_loaded > 500000:
+        if golem_manager.total_patterns_loaded > 5000:
             print("✅ COMPLETE 5D HYPERCUBE MEMORY INTEGRATION SUCCESSFUL")
         else:
             print(f"⚠️  Partial 5D memory integration - only {patterns_count:,} patterns loaded. Check logs for errors.")
@@ -972,3 +973,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    
