@@ -506,7 +506,9 @@ def main():
     print("🌌 ENHANCED AETHER GOLEM CHAT SERVER - COMPLETE MEMORY INTEGRATION 🌌")
     print("=" * 80)
     if golem_manager.golem:
-        print(f"🔌 Starting server with {golem_manager.total_patterns_loaded:,} aether patterns loaded")
+        patterns_count = len(golem_manager.golem.aether_memory.aether_memories)
+        print(f"🔌 Starting server with {patterns_count:,} aether patterns loaded")
+        print(f"📊 Total patterns integrated: {golem_manager.total_patterns_loaded:,}")
         if golem_manager.total_patterns_loaded > 500000:
             print("✅ COMPLETE MEMORY INTEGRATION SUCCESSFUL")
         else:
