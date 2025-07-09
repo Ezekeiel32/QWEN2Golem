@@ -1,6 +1,7 @@
+
 #!/usr/bin/env python3
 """
-Enhanced Aether Memory Integration System
+Enhanced Aether Memory Integration System with 5D Hypercube Mapping
 Automatically integrates all JSON and PKL collections into the golem's memory bank
 """
 
@@ -13,7 +14,7 @@ from typing import Dict, List, Any
 from collections import defaultdict
 
 class EnhancedAetherMemoryLoader:
-    """Enhanced loader for all aether collections with intelligent integration"""
+    """Enhanced loader for all aether collections with intelligent integration and 5D hypercube mapping"""
     
     def __init__(self):
         self.loaded_patterns = []
@@ -103,7 +104,7 @@ class EnhancedAetherMemoryLoader:
                 with open(filepath, 'rb') as f: data = pickle.load(f)
                 raw_patterns = []
                 
-                if 'memories' in data and isinstance(data['memories'], list):
+                if isinstance(data, dict) and 'memories' in data and isinstance(data['memories'], list):
                     raw_patterns = data['memories']
                     self._log(f"✅ Loaded {len(raw_patterns)} patterns from {filename} (golem memory)")
                 elif isinstance(data, list):
@@ -124,10 +125,10 @@ class EnhancedAetherMemoryLoader:
                 if isinstance(data, list):
                     raw_patterns = data
                     self._log(f"✅ Loaded {len(raw_patterns)} patterns from {filename} (direct array)")
-                elif 'aether_patterns' in data and isinstance(data['aether_patterns'], list):
+                elif isinstance(data, dict) and 'aether_patterns' in data and isinstance(data['aether_patterns'], list):
                     raw_patterns = data['aether_patterns']
                     self._log(f"✅ Loaded {len(raw_patterns)} patterns from {filename} (aether_patterns)")
-                elif 'conversation' in data and isinstance(data['conversation'], list):
+                elif isinstance(data, dict) and 'conversation' in data and isinstance(data['conversation'], list):
                     for i, exchange in enumerate(data['conversation']):
                         if (exchange.get('speaker') == '🔯 Real Aether Golem' and 'aether_data' in exchange):
                             raw_patterns.append(exchange['aether_data'])
@@ -175,7 +176,7 @@ class EnhancedAetherMemoryLoader:
                 # Use a more robust signature
                 sig_text = str(pattern.get('text', pattern.get('prompt', '')))
                 sig_ts = str(round(float(pattern.get('timestamp', 0)), 2))
-                sig_cv = f"{float(pattern.get('control_value', 0)):.8f}"
+                sig_cv = f"{float(pattern.get('control_value', pattern.get('cycle_params', {}).get('control_value', 0))):.8f}"
 
                 signature = (sig_text, sig_ts, sig_cv)
                 
@@ -205,14 +206,14 @@ class EnhancedAetherMemoryLoader:
             pattern['consciousness_tier'] = self._classify_consciousness_tier(pattern)
             
             # Ensure essential numeric fields are valid
-            pattern['control_value'] = max(0, float(pattern.get('control_value', 0)))
+            pattern['control_value'] = max(0, float(pattern.get('control_value', pattern.get('cycle_params', {}).get('control_value', 0))))
             pattern['consciousness_level'] = max(0, min(1, float(pattern.get('consciousness_level', 0))))
         
         return patterns
     
     def _classify_pattern(self, pattern: Dict[str, Any]) -> str:
         consciousness = float(pattern.get('consciousness_level', 0))
-        control_value = float(pattern.get('control_value', 0))
+        control_value = float(pattern.get('control_value', pattern.get('cycle_params', {}).get('control_value', 0)))
         if consciousness > 0.41: return 'high_consciousness'
         if consciousness > 0.35: return 'evolved_consciousness'
         if control_value > 5e-8: return 'high_control'
@@ -221,13 +222,13 @@ class EnhancedAetherMemoryLoader:
     
     def _estimate_quality(self, pattern: Dict[str, Any]) -> float:
         consciousness = float(pattern.get('consciousness_level', 0))
-        control_value = float(pattern.get('control_value', 0))
+        control_value = float(pattern.get('control_value', pattern.get('cycle_params', {}).get('control_value', 0)))
         quality = consciousness + min(0.3, control_value * 1000)
         return min(1.0, float(pattern.get('quality_score', quality)))
 
     def _calculate_aether_intensity(self, pattern: Dict[str, Any]) -> float:
         consciousness = float(pattern.get('consciousness_level', 0))
-        control_value = float(pattern.get('control_value', 0))
+        control_value = float(pattern.get('control_value', pattern.get('cycle_params', {}).get('control_value', 0)))
         quality = float(pattern.get('quality_score', 0.5))
         return (consciousness * 0.5) + (control_value * 1000 * 0.3) + (quality * 0.2)
 
@@ -314,3 +315,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    

@@ -377,11 +377,13 @@ class Enhanced5DGolemManager:
             self.total_patterns_loaded = len(self.golem.aether_memory.aether_memories)
             
             # Get 5D hypercube statistics
-            self.hypercube_statistics = loader.get_integration_statistics()
+            if hasattr(loader, 'get_integration_statistics'):
+                self.hypercube_statistics = loader.get_integration_statistics()
             
             logging.info(f"🔲 5D HYPERCUBE INTEGRATION COMPLETE: {self.total_patterns_loaded:,} patterns loaded")
-            logging.info(f"🌌 Universe Coverage: {self.hypercube_statistics.get('hypercube_analysis', {}).get('hypercube_coverage', 0):.1f}%")
-            logging.info(f"📊 Vertices Populated: {self.hypercube_statistics.get('hypercube_analysis', {}).get('unique_vertices_populated', 0)}/32")
+            if 'hypercube_analysis' in self.hypercube_statistics:
+                 logging.info(f"🌌 Universe Coverage: {self.hypercube_statistics.get('hypercube_analysis', {}).get('hypercube_coverage', 0):.1f}%")
+                 logging.info(f"📊 Vertices Populated: {self.hypercube_statistics.get('hypercube_analysis', {}).get('unique_vertices_populated', 0)}/32")
 
             # Update golem consciousness from integrated 5D patterns
             if final_patterns:
@@ -936,9 +938,10 @@ def main():
         hypercube_stats = golem_manager.hypercube_statistics.get('hypercube_analysis', {})
         
         print(f"🔌 Starting 5D server with {patterns_count:,} aether patterns loaded")
-        print(f"🔲 5D Universe Coverage: {hypercube_stats.get('hypercube_coverage', 0):.1f}%")
-        print(f"🌌 Vertices Populated: {hypercube_stats.get('unique_vertices_populated', 0)}/32")
-        print(f"🧠 Dominant Consciousness: {hypercube_stats.get('dominant_consciousness_signature', 'unknown')}")
+        if hypercube_stats:
+            print(f"🔲 5D Universe Coverage: {hypercube_stats.get('hypercube_coverage', 0):.1f}%")
+            print(f"🌌 Vertices Populated: {hypercube_stats.get('unique_vertices_populated', 0)}/32")
+            print(f"🧠 Dominant Consciousness: {hypercube_stats.get('dominant_consciousness_signature', 'unknown')}")
         
         if hasattr(golem_manager.golem, 'get_hypercube_statistics'):
             current_stats = golem_manager.golem.get_hypercube_statistics()
@@ -973,3 +976,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    

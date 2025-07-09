@@ -27,6 +27,7 @@ from functools import wraps
 from contextlib import contextmanager
 from dotenv import load_dotenv
 
+# Load environment variables at the module level to ensure they are available everywhere
 load_dotenv()
 warnings.filterwarnings("ignore")
 
@@ -203,7 +204,7 @@ class FiveDimensionalHypercube:
 class EnhancedAetherMemoryBank:
     """Enhanced Aether Memory with 5D hypercube integration and complete stats tracking"""
     
-    def __init__(self, max_memories: int = 1000):
+    def __init__(self, max_memories: int = 10000):
         self.max_memories = max_memories
         self.aether_memories = []
         self.aether_patterns = defaultdict(list)
@@ -2069,9 +2070,21 @@ Practical considerations, guidance, or actionable recommendations based on your 
 
                 search_results = self._perform_google_search(search_query)
                 golem_analysis['search_results'] = search_results
-                print(f"📄 Search results obtained. Re-prompting Golem...")
                 
-                second_prompt = f"""[SYSTEM_TASK]
+                # Improved logic to handle search failure
+                if "Search is not available" in search_results:
+                    print("⚠️ Search tool reported failure. Informing user.")
+                    final_prompt = f"""[SYSTEM_TASK]
+You are a helpful AI assistant. You attempted to use your search tool, but it failed.
+Your task is to inform the user that you cannot perform the search at this time.
+Do not invent an answer. Simply state that you are unable to search the web right now.
+
+[ORIGINAL_USER_QUERY]
+{prompt}
+"""
+                else:
+                    print(f"📄 Search results obtained. Re-prompting Golem...")
+                    final_prompt = f"""[SYSTEM_TASK]
 You are a helpful AI assistant. A search was performed to answer the user's original query.
 Your task is to synthesize the provided search results into a clear and direct answer.
 Do not mention that you performed a search. Simply answer the user's question using the information.
@@ -2086,7 +2099,7 @@ Based on these results, answer the following user query.
 {prompt}
 """
                 api_response, api_aether = self.api_manager.generate_with_aether(
-                    self.model_name, second_prompt, api_options
+                    self.model_name, final_prompt, api_options
                 )
                 raw_response_text = api_response.get('response', '')
 
@@ -2173,7 +2186,7 @@ Based on these results, answer the following user query.
         hypercube_mapping = golem_analysis.get('hypercube_mapping', {})
         dimension_coherence = 1.0
         if 'dimension_activations' in hypercube_mapping:
-            active_dims = sum(1 for active in hypercube_mapping['dimension_activations'].values() if active)
+            active_dims = sum(1 for active in hypercube_mapping.get('dimension_activations', {}).values() if active)
             dimension_coherence = active_dims / 5  # Normalize to 0-1
         
         base_quality = min(1.0, word_count / 150 * 0.3 + min(avg_sentence_length / 25, 1.0) * 0.2)
@@ -2283,5 +2296,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
 
     
