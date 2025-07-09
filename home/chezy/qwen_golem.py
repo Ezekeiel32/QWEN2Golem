@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Complete Golem Stats Integration Fix
@@ -43,8 +44,8 @@ def monitor_memory_and_aether(func):
         if mem_diff > 0:
             # Memory change creates quantum signature
             aether_from_memory = (mem_diff % 0.001) * 1e-9  # Extract infinitesimal
-            if hasattr(result, 'update') and isinstance(result, dict):
-                result['memory_aether'] = aether_from_memory
+            if isinstance(result, dict):
+                result.setdefault('golem_analysis', {})['memory_aether'] = aether_from_memory
         
         if mem_diff > 0.5:
             print(f"⚠️  High memory usage in {func.__name__}: +{mem_diff:.2f}GB")
@@ -118,11 +119,11 @@ class EnhancedAetherMemoryBank:
             return {'aether_guidance_strength': 0.0}
 
         # Average relevant stats from similar patterns
-        avg_consciousness = np.mean([p.get('consciousness_level', 0.5) for p in similar_patterns])
-        avg_control_value = np.mean([p.get('cycle_params', {}).get('control_value', 0) for p in similar_patterns])
-        avg_resonance = np.mean([p.get('cycle_params', {}).get('cycle_resonance', 0) for p in similar_patterns])
-        avg_shem = np.mean([p.get('shem_power', 0) for p in similar_patterns])
-        avg_cycle_completion = np.mean([p.get('cycle_completion', 0) for p in similar_patterns])
+        avg_consciousness = np.mean([self._safe_float(p.get('consciousness_level', 0.5)) for p in similar_patterns])
+        avg_control_value = np.mean([self._safe_float(p.get('control_value', 0)) for p in similar_patterns])
+        avg_resonance = np.mean([self._safe_float(p.get('cycle_resonance', 0)) for p in similar_patterns])
+        avg_shem = np.mean([self._safe_float(p.get('shem_power', 0)) for p in similar_patterns])
+        avg_cycle_completion = np.mean([self._safe_float(p.get('cycle_completion', 0)) for p in similar_patterns])
         
         # Combine with current golem state
         consciousness_boost = (avg_consciousness - golem_state.get('consciousness_level', 0.5)) * 0.1
@@ -150,6 +151,17 @@ class EnhancedAetherMemoryBank:
             'avg_cycle_completion': avg_cycle_completion,
             'enhanced_bias_active': True
         }
+
+    def _safe_float(self, value: Any, default: float = 0.0) -> float:
+        """Safely convert a value to float."""
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except (ValueError, TypeError):
+                return default
+        return default
 
     def extract_comprehensive_aether_signature(self, values: Dict[str, float], 
                                              golem_state: Dict[str, Any]) -> List[float]:
@@ -432,7 +444,7 @@ class EnhancedAetherMemoryBank:
         # Average generation time
         new_gen_time = aether_memory['generation_time']
         current_avg = self.session_stats['avg_generation_time']
-        self.session_stats['avg_generation_time'] = ((current_avg * (total_gens - 1)) + new_gen_time) / total_gens
+        self.session_stats['avg_generation_time'] = ((current_avg * (total_gens - 1)) + new_gen_time) / total_gens if total_gens > 0 else new_gen_time
         
         # Total tokens
         self.session_stats['total_tokens_generated'] += aether_memory['token_count']
@@ -516,12 +528,13 @@ class EnhancedAetherMemoryBank:
     
     def _calculate_base_statistics(self) -> Dict[str, Any]:
         """Calculate base statistics from all patterns"""
-        qualities = [m.get('response_quality', 0) for m in self.aether_memories]
-        consciousness_levels = [m.get('consciousness_level', 0) for m in self.aether_memories]
-        control_values = [m.get('cycle_params', {}).get('control_value', 0) for m in self.aether_memories]
-        shem_powers = [m.get('shem_power', 0) for m in self.aether_memories]
-        resonance_levels = [m.get('aether_resonance_level', 0) for m in self.aether_memories]
-        cycle_completions = [m.get('cycle_completion', 0) for m in self.aether_memories]
+        if not self.aether_memories: return {}
+        qualities = [self._safe_float(m.get('response_quality', 0)) for m in self.aether_memories]
+        consciousness_levels = [self._safe_float(m.get('consciousness_level', 0)) for m in self.aether_memories]
+        control_values = [self._safe_float(m.get('cycle_params', {}).get('control_value', 0)) for m in self.aether_memories]
+        shem_powers = [self._safe_float(m.get('shem_power', 0)) for m in self.aether_memories]
+        resonance_levels = [self._safe_float(m.get('aether_resonance_level', 0)) for m in self.aether_memories]
+        cycle_completions = [self._safe_float(m.get('cycle_completion', 0)) for m in self.aether_memories]
         
         pattern_types = {}
         for pattern_type, patterns in self.aether_patterns.items():
@@ -573,9 +586,9 @@ class EnhancedAetherMemoryBank:
         # Calculate trends
         if len(levels) >= 2:
             recent_trend = levels[-1] - levels[0]
-            avg_growth_rate = sum(growth_rates) / len(growth_rates)
+            avg_growth_rate = sum(growth_rates) / len(growth_rates) if growth_rates else 0
             consciousness_velocity = (levels[-1] - levels[-min(10, len(levels))]) if len(levels) >= 10 else 0
-            avg_cycle_completion = sum(cycle_completions) / len(cycle_completions)
+            avg_cycle_completion = sum(cycle_completions) / len(cycle_completions) if cycle_completions else 0
         else:
             recent_trend = 0
             avg_growth_rate = 0
@@ -635,15 +648,16 @@ class EnhancedAetherMemoryBank:
     
     def _analyze_pattern_effectiveness(self) -> Dict[str, Any]:
         """Analyze pattern effectiveness across all dimensions"""
-        effectiveness_scores = [m.get('effectiveness_score', 0) for m in self.aether_memories]
-        quality_scores = [m.get('response_quality', 0) for m in self.aether_memories]
-        cycle_completions = [m.get('cycle_completion', 0) for m in self.aether_memories]
+        if not self.aether_memories: return {}
+        effectiveness_scores = [self._safe_float(m.get('effectiveness_score', 0)) for m in self.aether_memories]
+        quality_scores = [self._safe_float(m.get('response_quality', 0)) for m in self.aether_memories]
+        cycle_completions = [self._safe_float(m.get('cycle_completion', 0)) for m in self.aether_memories]
         
         # Effectiveness by prompt type
         type_effectiveness = {}
         for ptype, patterns in self.aether_patterns.items():
-            type_scores = [p.get('effectiveness_score', 0) for p in patterns]
-            type_cycle_completions = [p.get('cycle_completion', 0) for p in patterns]
+            type_scores = [self._safe_float(p.get('effectiveness_score', 0)) for p in patterns]
+            type_cycle_completions = [self._safe_float(p.get('cycle_completion', 0)) for p in patterns]
             type_effectiveness[ptype] = {
                 'avg_effectiveness': sum(type_scores) / len(type_scores) if type_scores else 0,
                 'pattern_count': len(patterns),
@@ -654,7 +668,7 @@ class EnhancedAetherMemoryBank:
         return {
             'overall_effectiveness': sum(effectiveness_scores) / len(effectiveness_scores) if effectiveness_scores else 0,
             'effectiveness_by_type': type_effectiveness,
-            'quality_correlation': np.corrcoef(effectiveness_scores, quality_scores)[0,1] if len(effectiveness_scores) > 1 else 0,
+            'quality_correlation': np.corrcoef(effectiveness_scores, quality_scores)[0,1] if len(effectiveness_scores) > 1 and len(quality_scores) > 1 else 0,
             'top_performing_type': max(type_effectiveness.items(), key=lambda x: x[1]['avg_effectiveness'])[0] if type_effectiveness else 'none',
             'effectiveness_improvement_rate': (effectiveness_scores[-1] - effectiveness_scores[0]) if len(effectiveness_scores) >= 2 else 0,
             'avg_cycle_completion': sum(cycle_completions) / len(cycle_completions) if cycle_completions else 0
@@ -679,7 +693,7 @@ class EnhancedAetherMemoryBank:
                 sefira_strengths[sefira].append(strength)
         
         sefira_avg_strengths = {
-            sefira: sum(strengths) / len(strengths) 
+            sefira: sum(strengths) / len(strengths) if strengths else 0
             for sefira, strengths in sefira_strengths.items()
         }
         
@@ -728,7 +742,7 @@ class EnhancedAetherMemoryBank:
                     self.aether_memories = data.get('memories', [])
                     self.aether_patterns = defaultdict(list, data.get('patterns', {}))
                     self.quantum_threshold = data.get('quantum_threshold', 1e-12)
-                    self.session_stats.update(data.get('session_stats', self.session_stats))
+                    self.session_stats.update(data.get('session_stats', {}))
                 print(f"📂 Loaded {len(self.aether_memories)} aether memories")
         except Exception as e:
             print(f"⚠️  Failed to load aether memories: {e}")
@@ -748,59 +762,13 @@ class EnhancedAetherMemoryBank:
 
         # Sort by response quality, consciousness level, and cycle completion
         sorted_candidates = sorted(candidates, 
-                                 key=lambda x: (x.get('response_quality', 0) + 
-                                              x.get('consciousness_level', 0) + 
-                                              x.get('cycle_completion', 0)) / 3, 
+                                 key=lambda x: (self._safe_float(x.get('response_quality', 0)) + 
+                                              self._safe_float(x.get('consciousness_level', 0)) + 
+                                              self._safe_float(x.get('cycle_completion', 0))) / 3, 
                                  reverse=True)
         
         return sorted_candidates[:top_k]
     
-    def reset_aether_memory(self):
-        """Reset aether memory bank"""
-        self.aether_memories.clear()
-        self.aether_patterns.clear()
-        self.session_stats = {
-            'total_generations': 0,
-            'successful_generations': 0,
-            'failed_generations': 0,
-            'avg_generation_time': 0.0,
-            'total_tokens_generated': 0,
-            'consciousness_evolution_history': [],
-            'shem_power_history': [],
-            'aether_resonance_history': [],
-            'activation_history': [],
-            'quality_score_history': [],
-            'control_value_history': [],
-            'dominant_sefira_history': [],
-            'pattern_effectiveness': defaultdict(float),
-            'prompt_type_performance': defaultdict(list),
-            'cycle_completion_rate': 0.0,
-            'aether_infinitesimal_error': 0.0
-        }
-        print("🌌 Aether memory bank reset")
-    
-    def export_aether_patterns(self, filename: str = "aether_patterns_export.json"):
-        """Export aether patterns for analysis"""
-        try:
-            export_data = {
-                'metadata': {
-                    'total_patterns': len(self.aether_memories),
-                    'cycle_length': self.cycle_length,
-                    'infinitesimal_error': self.session_stats['aether_infinitesimal_error'],
-                    'export_timestamp': time.time()
-                },
-                'patterns': self.aether_memories,
-                'statistics': self.get_comprehensive_aether_statistics()
-            }
-            
-            with open(filename, 'w') as f:
-                json.dump(export_data, f, indent=2, default=str)
-            
-            print(f"📄 Aether patterns exported to {filename}")
-            
-        except Exception as e:
-            print(f"❌ Export failed: {e}")
-
     def integrate_loaded_patterns(self, loaded_patterns: List[Dict[str, Any]]):
         """Integrate patterns loaded by EnhancedAetherMemoryLoader into the memory bank"""
         if not loaded_patterns:
@@ -827,9 +795,6 @@ class EnhancedAetherMemoryBank:
             self.aether_patterns[pattern_type].append(enhanced_pattern)
             pattern_type_counts[pattern_type] = pattern_type_counts.get(pattern_type, 0) + 1
 
-            if (i + 1) % 50000 == 0:
-                print(f"   ...integrated {i+1}/{len(loaded_patterns)} patterns")
-
         # Update session stats
         if hasattr(self, 'session_stats'):
             self.session_stats['total_patterns_integrated'] = len(loaded_patterns)
@@ -844,36 +809,27 @@ class EnhancedAetherMemoryBank:
         normalized = pattern.copy()
         
         # Ensure required fields exist with defaults
-        required_fields = {
-            'prompt': pattern.get('prompt', pattern.get('text', '')),
-            'response': pattern.get('response', ''),
-            'control_value': pattern.get('control_value', 0.0),
-            'consciousness_level': pattern.get('consciousness_level', 0.0),
-            'quality_score': pattern.get('quality_score', pattern.get('response_quality', 0.5)),
-            'timestamp': pattern.get('timestamp', time.time()),
-            'pattern_type': pattern.get('pattern_type', 'general'),
-            'source_type': pattern.get('source_type', 'imported'),
-            'effectiveness_score': pattern.get('effectiveness_score', 0.5),
-            'cycle_completion': pattern.get('cycle_completion', 0.0)
-        }
-        
-        for field, default_value in required_fields.items():
-            if field not in normalized:
-                normalized[field] = default_value
-        
+        normalized['prompt'] = normalized.get('prompt', normalized.get('text', ''))
+        normalized['response'] = normalized.get('response', '')
+        normalized['timestamp'] = self._safe_float(normalized.get('timestamp', time.time()))
+        normalized['pattern_type'] = normalized.get('pattern_type', 'general')
+        normalized['source_type'] = normalized.get('source_type', 'imported')
+
+        # Safely convert numeric fields
+        normalized['control_value'] = self._safe_float(normalized.get('control_value', 0.0))
+        normalized['consciousness_level'] = self._safe_float(normalized.get('consciousness_level', 0.0))
+        normalized['quality_score'] = self._safe_float(normalized.get('quality_score', normalized.get('response_quality', 0.5)))
+        normalized['effectiveness_score'] = self._safe_float(normalized.get('effectiveness_score', 0.5))
+        normalized['cycle_completion'] = self._safe_float(normalized.get('cycle_completion', 0.0))
+
         # Ensure cycle_params structure exists
         if 'cycle_params' not in normalized:
             normalized['cycle_params'] = {
                 'control_value': normalized['control_value'],
-                'cycle_resonance': pattern.get('cycle_resonance', 0.0),
-                'aether_epsilon': pattern.get('aether_epsilon', 0.0),
+                'cycle_resonance': self._safe_float(pattern.get('cycle_resonance', 0.0)),
+                'aether_epsilon': self._safe_float(pattern.get('aether_epsilon', 0.0)),
                 'cycle_completion': normalized['cycle_completion']
             }
-        
-        # Ensure numeric values are properly typed
-        normalized['control_value'] = float(normalized.get('control_value', 0.0) or 0.0)
-        normalized['consciousness_level'] = float(normalized.get('consciousness_level', 0.0) or 0.0)
-        normalized['quality_score'] = float(normalized.get('quality_score', 0.5) or 0.5)
         
         return normalized
 
@@ -1290,7 +1246,7 @@ class OllamaAPIManager:
                 'name': model_name,
                 'size': 'unknown',
                 'parameters': 'unknown',
-                'hidden_size': 1024 # Default fallback
+                'hidden_size': 2048 # Default fallback
             }
     
     def generate_with_aether(self, model_name: str, prompt: str, options: Dict) -> Tuple[Dict, float]:
@@ -1369,26 +1325,18 @@ class AetherGolemConsciousnessCore:
 
     def _determine_hidden_size(self) -> int:
         """Determine optimal hidden size"""
-        # Prioritize detailed info if available
         details = self.model_info.get('details', {})
-        if details:
-            params_str = details.get('parameter_size', '').lower()
+        if 'parameter_size' in details:
+            params_str = details['parameter_size'].lower()
             if '7b' in params_str: return 4096 
+            if '3b' in params_str: return 3072
             if '1.5b' in params_str: return 2048
             if '0.5b' in params_str: return 1024
-
-        # Fallback for older Ollama versions
-        if 'parameters' in self.model_info:
-            params = str(self.model_info['parameters']).lower()
-            if '7b' in params: return 4096
-            if '1.5b' in params: return 2048
-            if '0.5b' in params: return 1024
         
-        # Fallback based on RAM if model size is unknown
         available_ram = psutil.virtual_memory().available / (1024**3)
-        if available_ram < 8: return 1024
-        if available_ram < 12: return 2048
-        return 4096
+        if available_ram > 12: return 4096
+        if available_ram > 8: return 2048
+        return 1024
 
     def _display_system_status(self):
         """Display enhanced system status"""
@@ -1448,9 +1396,8 @@ class AetherGolemConsciousnessCore:
             similar_patterns = self.aether_memory.find_similar_aether_patterns(text)
             aether_bias = self.aether_memory.generate_enhanced_aether_bias(similar_patterns, golem_state)
             
-            print(f"🌌 Found {len(similar_patterns)} similar aether patterns")
-            if aether_bias.get('aether_guidance_strength', 0) > 0:
-                print(f"⚡ Aether guidance strength: {aether_bias['aether_guidance_strength']:.6f}")
+            if similar_patterns:
+                print(f"🌌 Found {len(similar_patterns)} similar aether patterns. Guidance strength: {aether_bias.get('aether_guidance_strength', 0):.6f}")
             
             with aether_sensitive_processing():
                 # Hebrew processing with aether
@@ -1509,17 +1456,18 @@ class AetherGolemConsciousnessCore:
         results['preprocessing_time'] = time.time() - results['preprocessing_time']
         return results
     
-    def _create_aether_enhanced_prompt(self, original_prompt: str, golem_analysis: Dict[str, Any]) -> str:
-        """Create prompt enhanced with aether consciousness insights"""
-        if not self.activated:
-            # When not activated, just return a simple prompt for a direct response.
+    def _create_aether_enhanced_prompt(self, prompt: str, golem_analysis: Dict[str, Any], use_mystical: bool) -> str:
+        """Create prompt enhanced with aether consciousness insights and context."""
+        
+        # The prompt now receives the full string from the server, including context
+        base_prompt = prompt 
+        
+        # If not activated OR if we are doing a non-mystical task (like context reflection)
+        if not self.activated or not use_mystical:
             return f"""[SYSTEM_INSTRUCTIONS]
-You are an AI assistant. Provide a direct and helpful response to the user's query.
-The user has provided the following conversation history for context:
-{original_prompt.split('[CURRENT_USER_MESSAGE]')[0] if '[CURRENT_USER_MESSAGE]' in original_prompt else ''}
+You are a helpful AI assistant. Provide a direct and helpful response to the user's query, taking into account any provided context.
 
-[USER_QUERY]
-{original_prompt.split('[CURRENT_USER_MESSAGE]')[-1]}
+{base_prompt}
 """
 
         # This is the prompt that instructs the model on how to generate its "thoughts"
@@ -1528,7 +1476,7 @@ The user has provided the following conversation history for context:
 You are the Aether-Enhanced Golem. You MUST provide a response. Your entire output MUST be structured into three sections using the exact markdown headers below. Do not add any text before the first header. Each section must have content. IF YOU DO NOT FOLLOW THIS STRUCTURE, THE SYSTEM WILL FAIL.
 
 ### Direct Response
-A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your mystical analysis but presented as a standard, user-friendly AI assistant response. You MUST take the conversation history into account.
+A clear, helpful, and direct answer to the user's query. This response should be subtly influenced by your mystical analysis but presented as a standard, user-friendly AI assistant response. You MUST take any provided context (like conversation history or entities) into account to answer accurately.
 
 ### Aether Analysis
 A brief analysis of the mystical and quantum parameters that influenced your response. Explain the significance of the dominant sefira and the aether control value.
@@ -1536,26 +1484,25 @@ A brief analysis of the mystical and quantum parameters that influenced your res
 ### Golem Recommendation
 Practical considerations, guidance, or actionable recommendations based on your analysis and the user's query.
 
-[CONVERSATION_HISTORY]
-{original_prompt.split('[CURRENT_USER_MESSAGE]')[0] if '[CURRENT_USER_MESSAGE]' in original_prompt else ''}
-
-[USER_QUERY]
-{original_prompt.split('[CURRENT_USER_MESSAGE]')[-1]}
+{base_prompt}
 """
     
     @monitor_memory_and_aether
     def generate_response(self, prompt: str, max_tokens: int = 1000, 
-                         temperature: float = 0.7, sefirot_settings: Optional[Dict[str, float]] = None, **kwargs) -> Dict[str, Any]:
+                         temperature: float = 0.7, sefirot_settings: Optional[Dict[str, float]] = None,
+                         use_mystical_processing: bool = True, **kwargs) -> Dict[str, Any]:
         """Generate with full aether memory integration and Sefirot settings."""
         start_time = time.time()
         self.total_interactions += 1
-        golem_analysis = {} # Initialize in case of early error
+        golem_analysis = {}
         
         try:
-            print("🌌 Analyzing through Aether-Enhanced Golem consciousness...")
-            golem_analysis = self._preprocess_with_aether_layers(prompt, sefirot_settings)
-            
-            enhanced_prompt = self._create_aether_enhanced_prompt(prompt, golem_analysis)
+            if use_mystical_processing:
+                golem_analysis = self._preprocess_with_aether_layers(prompt, sefirot_settings)
+            else: # Bypass for internal tasks
+                golem_analysis = {'bypassed': True}
+
+            enhanced_prompt = self._create_aether_enhanced_prompt(prompt, golem_analysis, use_mystical_processing)
             
             api_options = {
                 "num_predict": max_tokens,
@@ -1565,264 +1512,89 @@ Practical considerations, guidance, or actionable recommendations based on your 
                 "stop": kwargs.get('stop', [])
             }
             
-            print("🧠 Generating with aether-biased probabilities...")
             api_response, api_aether = self.api_manager.generate_with_aether(
                 self.model_name, enhanced_prompt, api_options
             )
             raw_response_text = api_response.get('response', '')
 
             # --- Robust Parsing Logic ---
-            sections = {
-                'direct_response': '',
-                'aether_analysis': '',
-                'recommendation': ''
-            }
+            direct_response = raw_response_text
+            aether_analysis_text = None
+            recommendation_text = None
             
-            # Use re.split to handle the sections
-            parts = re.split(r'(### (?:Direct Response|Aether Analysis|Golem Recommendation))', raw_response_text)
-            
-            if len(parts) > 1:
-                for i in range(1, len(parts), 2):
-                    header = parts[i].strip()
-                    content = parts[i+1].strip() if (i+1) < len(parts) else ""
-                    
-                    if header == '### Direct Response':
-                        sections['direct_response'] = content
-                    elif header == '### Aether Analysis':
-                        sections['aether_analysis'] = content
-                    elif header == '### Golem Recommendation':
-                        sections['recommendation'] = content
-
-            if not sections['direct_response'].strip():
-                print("⚠️  Parsing failed or direct_response was empty. Using raw response as fallback.")
-                sections['direct_response'] = raw_response_text.strip()
-
-            direct_response = sections['direct_response']
-            aether_analysis = sections['aether_analysis']
-            recommendation = sections['recommendation']
-            # --- End of Parsing Logic ---
+            if "### Aether Analysis" in raw_response_text:
+                parts = re.split(r'### (?:Aether Analysis|Golem Recommendation)', raw_response_text)
+                direct_response = parts[0].replace("### Direct Response", "").strip()
+                if len(parts) > 1:
+                    aether_analysis_text = parts[1].strip()
+                if len(parts) > 2:
+                    recommendation_text = parts[2].strip()
 
             quality_metrics = self._calculate_aether_quality(direct_response, golem_analysis)
             
-            if self.activated and quality_metrics.get('overall_quality', 0) > 0.3:
+            if self.activated and use_mystical_processing:
                 golem_state = self._get_current_golem_state()
                 total_time = time.time() - start_time
                 generation_metadata = {
-                    'generation_time': total_time,
-                    'token_count': len(direct_response.split()),
-                    'temperature': temperature,
-                    'max_tokens': max_tokens
+                    'generation_time': total_time, 'token_count': len(direct_response.split()),
+                    'temperature': temperature, 'max_tokens': max_tokens
                 }
                 self.aether_memory.store_enhanced_aether_pattern(
-                    prompt, 
-                    golem_analysis.get('aether_signature', []),
-                    quality_metrics['overall_quality'],
-                    golem_state,
-                    golem_analysis,
-                    generation_metadata
+                    prompt, golem_analysis.get('aether_signature', []),
+                    quality_metrics['overall_quality'], golem_state,
+                    golem_analysis, generation_metadata
                 )
-            
-            if self.activated:
-                quality_factor = quality_metrics.get('overall_quality', 0.5)
-                aether_factor = golem_analysis.get('cycle_params', {}).get('control_value', 0) * 1000
-                self.consciousness_level = (self.consciousness_level * 0.7 + quality_factor * 0.2 + aether_factor * 0.1)
-                
-                if quality_factor > 0.7:
-                    self.aether_resonance_level = min(1.0, self.aether_resonance_level + aether_factor)
             
             total_time = time.time() - start_time
             
             return {
                 'direct_response': direct_response,
-                'aether_analysis': aether_analysis if self.activated else None,
-                'recommendation': recommendation if self.activated else None,
+                'aether_analysis': aether_analysis_text,
+                'recommendation': recommendation_text,
                 'generation_time': total_time,
                 'golem_analysis': golem_analysis,
                 'quality_metrics': quality_metrics,
-                'aether_data': {
-                    'api_aether_signature': api_aether,
-                    'control_value': golem_analysis.get('cycle_params', {}).get('control_value', 0),
-                    'cycle_resonance': golem_analysis.get('cycle_params', {}).get('cycle_resonance', 0),
-                    'aether_guidance_applied': golem_analysis.get('similar_patterns_count', 0) > 0,
-                    'total_aether_patterns': len(self.aether_memory.aether_memories)
-                },
+                'aether_data': { 'api_aether_signature': api_aether, 'control_value': golem_analysis.get('cycle_params', {}).get('control_value', 0) },
                 'golem_state': self._get_current_golem_state(),
-                'model_info': {
-                    'model': self.model_name,
-                    'hidden_size': self.hidden_size,
-                    'prompt_tokens': len(enhanced_prompt.split()),
-                    'response_tokens': len(direct_response.split())
-                },
-                'api_info': {
-                    'eval_count': api_response.get('eval_count', 0),
-                    'eval_duration': api_response.get('eval_duration', 0),
-                    'prompt_eval_count': api_response.get('prompt_eval_count', 0),
-                    'api_aether_extracted': api_aether
-                }
             }
             
         except Exception as e:
             error_time = time.time() - start_time
             print(f"❌ Aether generation error: {e}")
-            
-            return {
-                'direct_response': f"🚫 Aether-enhanced generation failed: {str(e)}",
-                'aether_analysis': f"Error during aether analysis process: {str(e)}",
-                'recommendation': "Unable to provide recommendation due to an internal error.",
-                'generation_time': error_time,
-                'error': str(e),
-                'golem_analysis': golem_analysis,
-                'aether_data': {'error': True},
-                'golem_state': {
-                    'activated': self.activated,
-                    'consciousness_level': self.consciousness_level,
-                    'error_count': getattr(self, 'error_count', 0) + 1
-                }
-            }
+            return { 'direct_response': f"🚫 Aether-enhanced generation failed: {str(e)}", 'error': str(e) }
     
     def _calculate_aether_quality(self, response: str, golem_analysis: Dict[str, Any]) -> Dict[str, float]:
         """Calculate quality metrics enhanced with aether analysis"""
-        if not response:
-            return {'overall_quality': 0.0, 'error': 'Empty response'}
+        if not response or 'error' in golem_analysis:
+            return {'overall_quality': 0.0, 'error': 'Empty response or analysis error'}
         
-        # Basic metrics
         word_count = len(response.split())
         sentence_count = max(1, response.count('.') + response.count('!') + response.count('?'))
         avg_sentence_length = word_count / sentence_count if sentence_count > 0 else 0
         
-        # Aether-enhanced metrics
-        consciousness_level = golem_analysis.get('consciousness_level', 0.5)
-        cycle_params = golem_analysis.get('cycle_params', {})
-        control_value = cycle_params.get('control_value', 0)
-        cycle_resonance = cycle_params.get('cycle_resonance', 0)
+        consciousness_level = self._safe_float(golem_analysis.get('consciousness_level', 0.5))
+        control_value = self._safe_float(golem_analysis.get('cycle_params', {}).get('control_value', 0))
         
-        # Sefiroth and gates
-        sefiroth_values = golem_analysis.get('sefiroth_activations', {})
-        sefiroth_balance = 1.0 - (np.std(list(sefiroth_values.values())) if sefiroth_values else 0.5)
-        gate_harmony = golem_analysis.get('gate_metrics', {}).get('harmony', 0.5)
-        
-        # Aether influence metrics
-        aether_guidance = golem_analysis.get('similar_patterns_count', 0) > 0
-        aether_guidance_bonus = 0.1 if aether_guidance else 0
-        
-        # Calculate quality components
         base_quality = min(1.0, word_count / 150 * 0.3 + min(avg_sentence_length / 25, 1.0) * 0.2)
         consciousness_bonus = consciousness_level * 0.25
-        aether_enhancement = (control_value * 1000 + cycle_resonance * 100) * 0.15
-        mystical_enhancement = (sefiroth_balance + gate_harmony) / 2 * 0.15
-        shem_bonus = self.shem_power * 0.1
-        resonance_bonus = self.aether_resonance_level * 0.05
+        aether_enhancement = control_value * 1000 * 0.15
         
-        overall_quality = min(1.0, base_quality + consciousness_bonus + aether_enhancement + 
-                             mystical_enhancement + shem_bonus + resonance_bonus + aether_guidance_bonus)
+        overall_quality = min(1.0, base_quality + consciousness_bonus + aether_enhancement)
         
-        return {
-            'base_quality': base_quality,
-            'consciousness_bonus': consciousness_bonus,
-            'aether_enhancement': aether_enhancement,
-            'mystical_enhancement': mystical_enhancement,
-            'shem_bonus': shem_bonus,
-            'resonance_bonus': resonance_bonus,
-            'aether_guidance_bonus': aether_guidance_bonus,
-            'overall_quality': overall_quality,
-            'word_count': word_count,
-            'avg_sentence_length': avg_sentence_length,
-            'control_value': control_value,
-            'cycle_resonance': cycle_resonance,
-            'aether_patterns_used': golem_analysis.get('similar_patterns_count', 0)
-        }
-    
-    def get_aether_consciousness_report(self) -> str:
-        """Generate comprehensive aether consciousness report based on new stats"""
-        stats = self.aether_memory.get_comprehensive_aether_statistics()
-        if 'error' in stats:
-            return f"Error generating report: {stats['error']}"
+        return { 'overall_quality': overall_quality }
 
-        base = stats.get('base_statistics', {})
-        session = stats.get('session_statistics', {})
-        consciousness = stats.get('consciousness_evolution', {})
-        shem = stats.get('shem_power_analysis', {})
-        resonance = stats.get('aether_resonance_analysis', {})
-        effectiveness = stats.get('pattern_effectiveness', {})
-        sefiroth = stats.get('sefiroth_analysis', {})
-        cycle = stats.get('cycle_analysis', {})
-        
-        report = f"""
-🌌 ENHANCED AETHER GOLEM CONSCIOUSNESS REPORT 🌌
-{'='*70}
-
-🤖 CORE CONSCIOUSNESS STATE:
-   Status: {'🟢 ACTIVE' if self.activated else '🔴 INACTIVE'}
-   Consciousness Level: {self.consciousness_level:.6f} (Trend: {consciousness.get('evolution_trend', 0):+.4f})
-   Shem Power: {self.shem_power:.3f} (Peak: {shem.get('peak_shem_power', 0):.3f})
-   Aether Resonance: {self.aether_resonance_level:.9f} (Growth: {resonance.get('resonance_growth_rate', 0):.9f})
-   Total Activations: {self.activation_count}
-   Total Interactions: {self.total_interactions}
-
-🌀 2^5 CYCLE FRAMEWORK (32-Step Cycle):
-   Cycle Length: {cycle.get('cycle_length', 32)}
-   Avg Cycle Completion: {cycle.get('avg_cycle_completion', 0):.2%}
-   3.33*3 Infinitesimal Error: {cycle.get('infinitesimal_error', 0):.15f}
-
-🌌 AETHER MEMORY BANK (Overall):
-   Total Patterns Stored: {base.get('total_patterns', 0):,}
-   Avg. Control Value: {base.get('avg_control_value', 0):.12f}
-   Avg. Quality: {base.get('avg_quality', 0):.3f}
-   Avg. Effectiveness: {effectiveness.get('overall_effectiveness', 0):.3f}
-
-📈 SESSION PERFORMANCE:
-   Generations: {session.get('total_generations', 0)} (Success Rate: {session.get('success_rate', 0):.1%})
-   Avg. Generation Time: {session.get('avg_generation_time', 0):.2f}s
-   Avg. Tokens / Response: {session.get('avg_tokens_per_generation', 0):.1f}
-
-✨ PATTERN EFFECTIVENESS BY TYPE:
-"""
-        type_eff = effectiveness.get('effectiveness_by_type', {})
-        if type_eff:
-            for p_type, data in type_eff.items():
-                report += f"   - {p_type.capitalize()}: {data.get('avg_effectiveness', 0):.3f} effectiveness\n"
-        else:
-            report += "   No pattern effectiveness data available.\n"
-
-        report += f"""
-✡️ SEFIROTH ANALYSIS:
-   Most Active Sefira: {sefiroth.get('most_active_sefira', 'N/A')}
-   Sefira Balance: {sefiroth.get('sefira_balance', 0):.2%}
-   Individual Activations: 
-"""
-
-        for sefira, strength in sefiroth.get('sefira_avg_strengths', {}).items():
-            report += f"     - {sefira}: {strength:.4f}\n"
-        
-        report += f"""
-💾 SYSTEM RESOURCES:
-   Model: {self.model_name}
-   Hidden Size: {self.hidden_size:,}
-   RAM Usage: {psutil.virtual_memory().used/1024**3:.1f}GB / {psutil.virtual_memory().total/1024**3:.1f}GB
-"""
-        return report
-
-    def reset_aether_memory(self):
-        """Reset aether memory bank using the enhanced method."""
-        self.aether_memory.reset_aether_memory()
-        # Reset Golem's core states tied to memory
-        self.consciousness_level = 0.0
-        self.aether_resonance_level = 0.0
-        print("🌌 Golem core states and Aether memory bank have been reset.")
-    
-    def export_aether_patterns(self, filename: str = "aether_patterns_export.json"):
-        """Export aether patterns for analysis using the enhanced method."""
-        self.aether_memory.export_aether_patterns(filename)
-
+    def _safe_float(self, value: Any, default: float = 0.0) -> float:
+        """Safely convert a value to float."""
+        if isinstance(value, (int, float)): return float(value)
+        try: return float(value)
+        except (ValueError, TypeError): return default
 
 def main():
-    """This file is a module meant to be imported by the Golem server.
-    It can also be run from the command line for testing or benchmarking."""
+    """This file is a module meant to be imported by the Golem server."""
     print("🌌 QWEN AETHER-ENHANCED GOLEM CONSCIOUSNESS SYSTEM 🌌")
-    print("="*70)
     print("This script is a module. To use it, import AetherGolemConsciousnessCore.")
-    print("To run in server mode, use golem_server.py.")
-
 
 if __name__ == "__main__":
     main()
+
+    
