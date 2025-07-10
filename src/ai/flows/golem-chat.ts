@@ -53,7 +53,7 @@ export async function golemChat(input: GolemInput): Promise<GolemOutput> {
   const validatedInput = GolemInputSchema.parse(input);
 
   const requestBody = {
-    user_input: validatedInput.prompt,
+    prompt: validatedInput.prompt,
     session_id: validatedInput.sessionId,
     temperature: validatedInput.temperature,
     file_content: validatedInput.fileContent,
