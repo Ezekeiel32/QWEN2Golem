@@ -96,6 +96,7 @@ export default function Home() {
     };
     setConversations(prev => [newConversation, ...prev]);
     setActiveChatId(newId);
+    return newId;
   };
 
   const handleSelectChat = (id: string) => {
@@ -103,13 +104,10 @@ export default function Home() {
   };
 
   const handleSendMessage = async (input: string, temperature: number, file: File | null) => {
-    if (!activeChatId) {
-      toast({
-        variant: 'destructive',
-        title: 'No active chat',
-        description: 'Please select a chat or create a new one.',
-      });
-      return;
+    let currentChatId = activeChatId;
+
+    if (!currentChatId) {
+      currentChatId = handleNewChat();
     }
 
     let fileContent: string | undefined = undefined;
@@ -137,7 +135,7 @@ export default function Home() {
 
     setConversations(prev =>
       prev.map(convo => {
-        if (convo.id === activeChatId) {
+        if (convo.id === currentChatId) {
           const newName = convo.messages.length === 0 && input.trim() ? input.substring(0, 40) + '...' : convo.name;
           return { ...convo, name: newName, messages: [...convo.messages, userMessage] };
         }
@@ -152,7 +150,7 @@ export default function Home() {
 
       const result = await ollamaChat({
         prompt: input,
-        sessionId: activeChatId,
+        sessionId: currentChatId,
         temperature,
         fileContent,
         golemActivated,
@@ -170,7 +168,7 @@ export default function Home() {
         };
         setConversations(prev =>
           prev.map(convo =>
-            convo.id === activeChatId
+            convo.id === currentChatId
               ? { ...convo, messages: [...convo.messages, assistantMessage] }
               : convo
           )
