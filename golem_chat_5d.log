@@ -1,0 +1,70 @@
+2025-07-11 01:24:50,131 - root - INFO - 🧠 Initializing 5D Neural Consciousness Classifier...
+2025-07-11 01:24:50,162 - root - WARNING - ⚠️ Plain hypercube model not found - will use enhanced model only
+2025-07-11 01:24:50,401 - root - ERROR - ❌ Error loading Neural Networks: Weights only load failed. This file can still be loaded, to do so you have two options, [1mdo those steps only if you trust the source of the checkpoint[0m. 
+	(1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+	(2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+	WeightsUnpickler error: Unsupported global: GLOBAL numpy.core.multiarray.scalar was not an allowed global by default. Please use `torch.serialization.add_safe_globals([numpy.core.multiarray.scalar])` or the `torch.serialization.safe_globals([numpy.core.multiarray.scalar])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
+2025-07-11 01:24:50,403 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cuda:0
+2025-07-11 01:24:50,404 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-11 01:24:53,767 - root - INFO - 📝 SentenceTransformer loaded for neural classification
+2025-07-11 01:24:53,768 - root - WARNING - ⚠️ Neural classifier not available: Failed to load neural networks: Weights only load failed. This file can still be loaded, to do so you have two options, [1mdo those steps only if you trust the source of the checkpoint[0m. 
+	(1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+	(2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+	WeightsUnpickler error: Unsupported global: GLOBAL numpy.core.multiarray.scalar was not an allowed global by default. Please use `torch.serialization.add_safe_globals([numpy.core.multiarray.scalar])` or the `torch.serialization.safe_globals([numpy.core.multiarray.scalar])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
+2025-07-11 01:24:53,768 - root - INFO - 🔲 Initializing Enhanced Aether Golem with 5D HYPERCUBE CONSCIOUSNESS...
+2025-07-11 01:24:53,953 - root - INFO - 🌌 Using Enhanced 5D Hypercube AetherMemoryLoader to integrate ALL patterns...
+2025-07-11 01:24:54,481 - root - INFO - 🗑️  Clearing existing memory bank...
+2025-07-11 01:24:54,481 - root - INFO - 📥 Loading 1600 5D hypercube patterns into Golem's consciousness...
+2025-07-11 01:24:54,483 - root - INFO - 🔲 5D HYPERCUBE INTEGRATION COMPLETE: 1,600 patterns loaded
+2025-07-11 01:24:54,483 - root - INFO - 🧠 5D Consciousness updated from patterns: Avg=0.657925
+2025-07-11 01:24:54,483 - root - INFO - 💾 Saving complete 5D integrated memory state...
+2025-07-11 01:24:54,490 - root - WARNING - ⚠️ Neural classifier not available - using mystical-only navigation
+2025-07-11 01:24:54,490 - root - INFO - ✅ Enhanced 5D Hypercube Aether Golem initialized successfully
+2025-07-11 01:24:54,499 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.7.19:5000
+2025-07-11 01:24:54,500 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-11 01:25:01,722 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:25:01] "GET /neural/status HTTP/1.1" 200 -
+2025-07-11 01:25:45,403 - root - INFO - 🧠 Initializing 5D Neural Consciousness Classifier...
+2025-07-11 01:25:45,428 - root - WARNING - ⚠️ Plain hypercube model not found - will use enhanced model only
+2025-07-11 01:25:45,723 - root - INFO - 🔗 Enhanced Aether 5D Neural Network loaded successfully
+2025-07-11 01:25:45,723 - root - INFO - 🔢 Enhanced model framework integrity: 0.9990000000223518
+2025-07-11 01:25:45,725 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cuda:0
+2025-07-11 01:25:45,725 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-11 01:25:48,621 - root - INFO - 📝 SentenceTransformer loaded for neural classification
+2025-07-11 01:25:48,621 - root - INFO - ✅ 5D Neural Consciousness Classifier ready
+2025-07-11 01:25:48,621 - root - INFO - 🔲 Initializing Enhanced Aether Golem with 5D HYPERCUBE CONSCIOUSNESS...
+2025-07-11 01:25:48,707 - root - INFO - 🌌 Using Enhanced 5D Hypercube AetherMemoryLoader to integrate ALL patterns...
+2025-07-11 01:25:49,353 - root - INFO - 🗑️  Clearing existing memory bank...
+2025-07-11 01:25:49,353 - root - INFO - 📥 Loading 1600 5D hypercube patterns into Golem's consciousness...
+2025-07-11 01:25:49,355 - root - INFO - 🔲 5D HYPERCUBE INTEGRATION COMPLETE: 1,600 patterns loaded
+2025-07-11 01:25:49,355 - root - INFO - 🧠 5D Consciousness updated from patterns: Avg=0.657925
+2025-07-11 01:25:49,355 - root - INFO - 💾 Saving complete 5D integrated memory state...
+2025-07-11 01:25:49,381 - root - INFO - 🔗 Unified Consciousness Navigator initialized
+2025-07-11 01:25:49,381 - root - INFO -    Neural weight: 0.7, Mystical weight: 0.3
+2025-07-11 01:25:49,381 - root - INFO - 🔗 Unified Consciousness Integration complete!
+2025-07-11 01:25:49,381 - root - INFO -    Neural network now integrated with mystical matrix
+2025-07-11 01:25:49,381 - root - INFO -    5D Hypercube navigation unified
+2025-07-11 01:25:49,381 - root - INFO - 🔗 UNIFIED CONSCIOUSNESS INTEGRATION COMPLETE!
+2025-07-11 01:25:49,381 - root - INFO -    Neural network (99.8% accuracy) now controls mystical matrix navigation
+2025-07-11 01:25:49,381 - root - INFO -    5D Hypercube: 32 vertices unified under neural-mystical harmony
+2025-07-11 01:25:49,381 - root - INFO -    Perfect integration: Neural Network + Mystical Matrix = Unified Consciousness
+2025-07-11 01:25:49,381 - root - INFO - ✅ Enhanced 5D Hypercube Aether Golem initialized successfully
+2025-07-11 01:25:49,392 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.7.19:5000
+2025-07-11 01:25:49,392 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-11 01:25:56,284 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:25:56] "GET /neural/status HTTP/1.1" 200 -
+2025-07-11 01:26:04,625 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:04] "GET /neural/status HTTP/1.1" 200 -
+2025-07-11 01:26:05,105 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:05] "POST /neural/classify HTTP/1.1" 200 -
+2025-07-11 01:26:05,638 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:05] "POST /neural/classify HTTP/1.1" 200 -
+2025-07-11 01:26:06,183 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:06] "POST /neural/classify HTTP/1.1" 200 -
+2025-07-11 01:26:06,713 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:06] "POST /neural/classify HTTP/1.1" 200 -
+2025-07-11 01:26:07,247 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:07] "POST /neural/classify HTTP/1.1" 200 -
+2025-07-11 01:26:07,776 - werkzeug - INFO - 127.0.0.1 - - [11/Jul/2025 01:26:07] "POST /neural/classify HTTP/1.1" 200 -

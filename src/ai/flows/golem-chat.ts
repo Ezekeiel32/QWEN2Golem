@@ -79,8 +79,23 @@ export async function golemChat(input: GolemInput): Promise<GolemOutput> {
 
     const responseData = await response.json();
 
+    // Map the backend response to the expected frontend format
+    const mappedResponse = {
+      directResponse: responseData.direct_response,
+      aetherAnalysis: responseData.aether_analysis,
+      recommendation: responseData.recommendation,
+      golem_state: responseData.golem_state,
+      quality_metrics: responseData.quality_metrics,
+      golem_analysis: responseData.golem_analysis,
+      aether_data: responseData.aether_data,
+      server_metadata: responseData.server_metadata,
+      search_performed: responseData.search_performed,
+      search_query: responseData.search_query,
+      search_results: responseData.search_results,
+    };
+
     // Validate the output against the Zod schema
-    const validatedOutput = GolemOutputSchema.parse(responseData);
+    const validatedOutput = GolemOutputSchema.parse(mappedResponse);
 
     return validatedOutput;
   } catch (error) {

@@ -523,8 +523,9 @@ class EnhancedAetherMemoryBank:
         }
     
     def map_to_5d_hypercube(self, aether_signature: List[float], sefirot_activations: Dict[str, float], 
-                           consciousness_resonance: float, complexity_score: float) -> Dict[str, Any]:
-        """Map aether signature to 5D hypercube coordinate"""
+                           consciousness_resonance: float, complexity_score: float, 
+                           context_text: str = "") -> Dict[str, Any]:
+        """Map aether signature to 5D hypercube coordinate with unified consciousness navigation"""
         
         # Calculate aether value from signature
         aether_value = sum(aether_signature) / len(aether_signature) if aether_signature else 0
@@ -534,7 +535,7 @@ class EnhancedAetherMemoryBank:
             aether_value, sefirot_activations, consciousness_resonance, complexity_score
         )
         
-        # Find nearest vertex
+        # Find nearest vertex - only pass the coordinate parameter
         nearest_vertex = self.hypercube.find_nearest_vertex(coordinate)
         
         # Get vertex properties
@@ -590,7 +591,7 @@ class EnhancedAetherMemoryBank:
             complexity_score = len(prompt.split()) / 100.0  # Simple complexity estimate
             
             hypercube_mapping = self.map_to_5d_hypercube(
-                aether_signature, sefirot_activations, consciousness_resonance, complexity_score
+                aether_signature, sefirot_activations, consciousness_resonance, complexity_score, prompt
             )
             
             # Classify prompt type
@@ -1925,7 +1926,8 @@ class AetherGolemConsciousnessCore:
                 # Map to 5D hypercube
                 hypercube_mapping = self.aether_memory.map_to_5d_hypercube(
                     aether_signature, sefiroth_values, consciousness_level, 
-                    len(text.split()) / 100.0  # complexity score
+                    len(text.split()) / 100.0,  # complexity score
+                    text  # context text for unified consciousness navigation
                 )
                 
                 # Update Golem state with the final hypercube mapping.
