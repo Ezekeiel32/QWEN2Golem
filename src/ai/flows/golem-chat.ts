@@ -54,12 +54,12 @@ export async function golemChat(input: GolemInput): Promise<GolemOutput> {
 
   const requestBody = {
     prompt: validatedInput.prompt,
-    session_id: validatedInput.sessionId,
+    sessionId: validatedInput.sessionId,
     temperature: validatedInput.temperature,
-    file_content: validatedInput.fileContent,
-    golem_activated: validatedInput.golemActivated,
-    activation_phrases: validatedInput.activationPhrases,
-    sefirot_settings: validatedInput.sefirotSettings,
+    fileContent: validatedInput.fileContent,
+    golemActivated: validatedInput.golemActivated,
+    activationPhrases: validatedInput.activationPhrases,
+    sefirotSettings: validatedInput.sefirotSettings,
   };
 
   try {
