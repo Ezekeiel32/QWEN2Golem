@@ -61,7 +61,7 @@ export default function Home() {
       } else if (loadedConversations.length > 0) {
         setActiveChatId(loadedConversations[0].id);
       } else {
-        handleNewChat();
+        // Don't create a new chat on load, let the user do it.
       }
     } catch (error) {
       console.error("Failed to load state from localStorage", error);
