@@ -4,7 +4,7 @@
 import { ChatPanel } from '@/components/chat-panel';
 import { ChatHistorySidebar } from '@/components/chat-history-sidebar';
 import { useState, useEffect } from 'react';
-import { ollamaChat } from '@/ai/flows/ollama-chat';
+import { golemChat } from '@/ai/flows/golem-chat';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -109,6 +109,17 @@ export default function Home() {
     if (!currentChatId) {
       currentChatId = handleNewChat();
     }
+    
+    if (!currentChatId) {
+       console.error("No active chat ID even after trying to create a new one.");
+       toast({
+         variant: 'destructive',
+         title: 'Error',
+         description: 'Could not establish a chat session. Please refresh.',
+       });
+       return;
+    }
+
 
     let fileContent: string | undefined = undefined;
     if (file) {
@@ -148,7 +159,7 @@ export default function Home() {
       const activationPhrases = Object.entries(phraseClicks)
         .flatMap(([phrase, count]) => Array(count).fill(phrase));
 
-      const result = await ollamaChat({
+      const result = await golemChat({
         prompt: input,
         sessionId: currentChatId,
         temperature,
@@ -164,7 +175,7 @@ export default function Home() {
           content: result.directResponse,
           aetherAnalysis: result.aetherAnalysis,
           recommendation: result.recommendation,
-          golemStats: result.golemStats,
+          golemStats: result, // Pass the whole result object as golemStats
         };
         setConversations(prev =>
           prev.map(convo =>
@@ -181,23 +192,16 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Error calling ollamaChat:', error);
+      console.error('Error calling golemChat:', error);
        setConversations(originalConversations);
        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
        
-       if (errorMessage.includes("502")) {
-         toast({
-           variant: 'destructive',
-           title: 'Connection Error (502)',
-           description: "Could not connect to the Ollama server. Please ensure it's running and the ngrok tunnel is correctly configured.",
-         });
-       } else {
-         toast({
-           variant: 'destructive',
-           title: 'Error',
-           description: 'Failed to get a response from the AI. Please try again.',
-        });
-      }
+       toast({
+         variant: 'destructive',
+         title: 'Error',
+         description: `Failed to get response from Golem server: ${errorMessage}`,
+      });
+      
     } finally {
       setIsLoading(false);
     }
