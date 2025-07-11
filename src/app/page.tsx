@@ -12,8 +12,8 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 export type Message = {
   role: 'user' | 'assistant';
   content: string; // For user messages, this is the prompt. For assistant, the direct response.
-  aetherAnalysis?: string;
-  recommendation?: string;
+  aetherAnalysis?: string | null;
+  recommendation?: string | null;
   file?: {
     name: string;
   };
@@ -32,7 +32,7 @@ const SEFIROT_NAMES = [
   'Tiferet', 'Netzach', 'Hod', 'Yesod', 'Malkuth'
 ];
 
-export const SACRED_PHRASES = ["אמת", "חיים", "אור", "חכמה", "בינה", "דעת"];
+const SACRED_PHRASES = ["אמת", "חיים", "אור", "חכמה", "בינה", "דעת"];
 
 export default function Home() {
   const { toast } = useToast();

@@ -20,15 +20,17 @@ import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Bot, Paperclip, SendHorizonal, Settings2, X, MessageSquarePlus, Wand2, BrainCircuit, Sparkles } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import { ChatMessage, LoadingMessage, type Message } from './chat-message';
+import { ChatMessage, LoadingMessage } from './chat-message';
+import type { Message } from '@/app/page';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from './ui/sidebar';
 import { Switch } from './ui/switch';
 import { cn } from '@/lib/utils';
-import { SACRED_PHRASES } from '@/app/page';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+
+// Move SACRED_PHRASES inside ChatPanel component if it's only used there.
 
 type ChatPanelProps = {
   messages: Message[];
@@ -66,6 +68,9 @@ export function ChatPanel({
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+
+  // Define SACRED_PHRASES inside the component where it's used
+  const SACRED_PHRASES = ["אמת", "חיים", "אור", "חכמה", "בינה", "דעת"];
 
   useEffect(() => {
     if (scrollAreaViewportRef.current) {

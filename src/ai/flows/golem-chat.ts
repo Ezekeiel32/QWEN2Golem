@@ -34,14 +34,11 @@ const GolemOutputSchema = z.object({
 
 export type GolemOutput = z.infer<typeof GolemOutputSchema>;
 
-// Environment variable for the Golem server URL
-const GOLEM_SERVER_URL = process.env.GOLEM_SERVER_URL;
+// Use the public backend URL from environment variables
+const GOLEM_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-if (!GOLEM_SERVER_URL) {
-  throw new Error(
-    'GOLEM_SERVER_URL environment variable is not set. Please set it to your ngrok URL.'
-  );
-}
+// No need for a throw new Error check here as NEXT_PUBLIC_BACKEND_URL will have a default value from next.config.mjs
+// if not explicitly set in the deployment environment.
 
 /**
  * Sends a validated request to the Golem server and returns the response.
