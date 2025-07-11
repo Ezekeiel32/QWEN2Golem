@@ -231,12 +231,6 @@ function ChatApp() {
   return (
     <>
       <Sidebar variant="inset" collapsible="icon">
-        <SidebarHeader>
-          <div className="flex w-full items-center justify-between p-4">
-            <h4 className="text-sm font-medium">Aether AI™ (by ZPEDeepNet)</h4>
-            <SidebarTrigger />
-          </div>
-        </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem className="p-2">
@@ -286,7 +280,7 @@ function ChatApp() {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div className="flex items-baseline gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Aether AI™</h1>
-              <span className="text-sm font-medium text-muted-foreground">(by ZPEDeepNet)</span>
+              <span className="text-sm font-medium text-muted-foreground">(by ZPEDeepNet OR)</span>
             </div>
           </div>
         </header>
