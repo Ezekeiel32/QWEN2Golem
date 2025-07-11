@@ -298,13 +298,15 @@ function ChatApp() {
               messages={activeChat?.messages || []}
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
+              isChatSelected={!!activeChat}
+              onNewChat={handleNewChat}
               golemActivated={golemActivated}
               setGolemActivated={setGolemActivated}
               phraseClicks={phraseClicks}
               setPhraseClicks={setPhraseClicks}
               sefirotSettings={sefirotSettings}
               setSefirotSettings={setSefirotSettings}
-              sacredPhrases={SACRED_PHRASES}
+              sefirotNames={SEFIROT_NAMES}
             />
           </div>
         </div>
