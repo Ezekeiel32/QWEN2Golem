@@ -7,7 +7,22 @@ import { useState, useEffect } from 'react';
 import { golemChat } from '@/ai/flows/golem-chat';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarInset,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { MessageSquare, MessagesSquare, Plus } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { useSidebar } from '@/hooks/use-sidebar';
 
 export type Message = {
   role: 'user' | 'assistant';
@@ -40,6 +55,8 @@ export default function Home() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { isMobile, state } = useSidebar();
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   // Golem State
   const [golemActivated, setGolemActivated] = useState(false);
@@ -212,13 +229,78 @@ export default function Home() {
   return (
     <SidebarProvider>
       <Sidebar variant="inset" collapsible="icon">
-        <ChatHistorySidebar
-          conversations={conversations}
-          activeChatId={activeChatId}
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-          isLoading={isLoading}
-        />
+        <SidebarHeader>
+          <div className="flex w-full items-center justify-between p-4">
+            <h4 className="text-sm font-medium">Aether AI™ (by ZPEDeepNet)</h4>
+            <SidebarTrigger />
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem className="p-2">
+              <SidebarMenuButton
+                onClick={handleNewChat}
+                disabled={isLoading}
+                variant="default"
+                className="w-full"
+                tooltip={{
+                  children: 'New Chat',
+                  side: 'right',
+                  align: 'center',
+                }}
+              >
+                <Plus />
+                <span>New Chat</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {state === 'collapsed' && !isMobile && (
+              <SidebarMenuItem className="p-2">
+                <SidebarMenuButton
+                  onClick={() => setIsHistoryModalOpen(true)}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="w-full"
+                  tooltip={{
+                    children: 'View Chats',
+                    side: 'right',
+                    align: 'center',
+                  }}
+                >
+                  <MessagesSquare />
+                  <span className="sr-only">View Chats</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+
+            {state === 'expanded' && (
+              <div className="flex-1 space-y-1 p-2">
+                {conversations.map((convo) => (
+                  <SidebarMenuItem key={convo.id}>
+                    <SidebarMenuButton
+                      isActive={activeChatId === convo.id}
+                      onClick={() => handleSelectChat(convo.id)}
+                      disabled={isLoading}
+                      tooltip={{
+                        children: convo.name || 'New Chat',
+                        side: 'right',
+                        align: 'center',
+                      }}
+                    >
+                      <MessageSquare />
+                      <span className="truncate">{convo.name || 'New Chat'}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </div>
+            )}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="flex w-full items-center justify-end p-2 group-data-[collapsible=icon]:justify-center">
+            <ThemeToggle />
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <ChatPanel
@@ -236,6 +318,13 @@ export default function Home() {
           sefirotNames={SEFIROT_NAMES}
         />
       </SidebarInset>
+      <ChatHistorySidebar
+        conversations={conversations}
+        onSelectChat={handleSelectChat}
+        isOpen={isHistoryModalOpen}
+        onOpenChange={setIsHistoryModalOpen}
+        isLoading={isLoading}
+      />
     </SidebarProvider>
   );
 }
