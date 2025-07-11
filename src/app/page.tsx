@@ -23,6 +23,7 @@ import { MessageSquare, MessagesSquare, Plus } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/hooks/use-sidebar';
+import { Separator } from '@/components/ui/separator';
 
 // Force redeploy on Vercel
 export type Message = {
@@ -35,7 +36,6 @@ export type Message = {
   };
   golemStats?: any;
 };
-
 
 export type Conversation = {
   id: string; // This will now serve as the sessionId
@@ -50,7 +50,8 @@ const SEFIROT_NAMES = [
 
 const SACRED_PHRASES = ["אמת", "חיים", "אור", "חכמה", "בינה", "דעת"];
 
-export default function Home() {
+// Create a separate component that uses the sidebar hook
+function ChatApp() {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -228,7 +229,7 @@ export default function Home() {
   const activeChat = conversations.find(c => c.id === activeChatId);
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar variant="inset" collapsible="icon">
         <SidebarHeader>
           <div className="flex w-full items-center justify-between p-4">
@@ -254,78 +255,67 @@ export default function Home() {
                 <span>New Chat</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-
-            {state === 'collapsed' && !isMobile && (
-              <SidebarMenuItem className="p-2">
-                <SidebarMenuButton
-                  onClick={() => setIsHistoryModalOpen(true)}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="w-full"
-                  tooltip={{
-                    children: 'View Chats',
-                    side: 'right',
-                    align: 'center',
-                  }}
-                >
-                  <MessagesSquare />
-                  <span className="sr-only">View Chats</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )}
-
-            {state === 'expanded' && (
-              <div className="flex-1 space-y-1 p-2">
-                {conversations.map((convo) => (
-                  <SidebarMenuItem key={convo.id}>
-                    <SidebarMenuButton
-                      isActive={activeChatId === convo.id}
-                      onClick={() => handleSelectChat(convo.id)}
-                      disabled={isLoading}
-                      tooltip={{
-                        children: convo.name || 'New Chat',
-                        side: 'right',
-                        align: 'center',
-                      }}
-                    >
-                      <MessageSquare />
-                      <span className="truncate">{convo.name || 'New Chat'}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </div>
-            )}
+            <ChatHistorySidebar
+              conversations={conversations}
+              activeChatId={activeChatId}
+              onSelectChat={handleSelectChat}
+              isLoading={isLoading}
+            />
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex w-full items-center justify-end p-2 group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center justify-between p-4">
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsHistoryModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <MessagesSquare className="h-4 w-4" />
+              <span className="text-xs">History</span>
+            </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <ChatPanel
-          messages={activeChat?.messages ?? []}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          isChatSelected={!!activeChat}
-          onNewChat={handleNewChat}
-          golemActivated={golemActivated}
-          setGolemActivated={setGolemActivated}
-          phraseClicks={phraseClicks}
-          setPhraseClicks={setPhraseClicks}
-          sefirotSettings={sefirotSettings}
-          setSefirotSettings={setSefirotSettings}
-          sefirotNames={SEFIROT_NAMES}
-        />
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <h1 className="text-lg font-semibold">Aether AI™</h1>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
+            <div className="aspect-video rounded-xl bg-muted/50" />
+          </div>
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
+            <ChatPanel
+              messages={activeChat?.messages || []}
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+              golemActivated={golemActivated}
+              setGolemActivated={setGolemActivated}
+              phraseClicks={phraseClicks}
+              setPhraseClicks={setPhraseClicks}
+              sefirotSettings={sefirotSettings}
+              setSefirotSettings={setSefirotSettings}
+              sacredPhrases={SACRED_PHRASES}
+            />
+          </div>
+        </div>
       </SidebarInset>
-      <ChatHistorySidebar
-        conversations={conversations}
-        onSelectChat={handleSelectChat}
-        isOpen={isHistoryModalOpen}
-        onOpenChange={setIsHistoryModalOpen}
-        isLoading={isLoading}
-      />
+    </>
+  );
+}
+
+export default function Home() {
+  return (
+    <SidebarProvider>
+      <ChatApp />
     </SidebarProvider>
   );
 }
