@@ -1,45 +1,67 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Node.js
+node_modules/
+.next/
+out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# vercel
-.vercel
+# Logs
+*.log
+golem_chat_5d.log
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Editor/OS specific
+.vscode/
+.idea/
+.DS_Store
+*.swp
 
-.genkit/*
-.env*
-
-# firebase
-firebase-debug.log
-firestore-debug.log
+# Project specific
+.history/
+*.pth
+*.pkl
+*.backup*
+enhanced_aether_memory_bank.json
+enhanced_training_results.json
+training_aether_memories.json
+golem_aether_training_*.pkl
+hypercube_aether_patterns_*.json
+hypercube_checkpoint_*.json
+conversation_checkpoint_*.json
+aether_memories.json
+aether_corpus_memory.pkl
+enhanced_aether_memory_bank2.json
+enhanced_aether_memory_bank_5d_hypercube.json
+enhanced_aether_memory_bank_5d_hypercube_summary.json
+golem_server_backup.py
+requirements.txt
+next.config.ts
+next.config.mjs
+postcss.config.mjs
+src/next.config.ts
+golem_cursor_adapter.py
+test_dual_models.py
+train_neural_with_memories.py
+hypercube_consciousness_nn.py

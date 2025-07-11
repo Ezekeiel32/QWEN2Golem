@@ -34,12 +34,12 @@ export function ChatHistorySidebar({
 }: ChatHistorySidebarProps) {
 
   return (
-    <ChatHistoryModal
-      conversations={conversations}
-      onSelectChat={onSelectChat}
+      <ChatHistoryModal
+        conversations={conversations}
+        onSelectChat={onSelectChat}
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      isLoading={isLoading}
-    />
+        isLoading={isLoading}
+      />
   );
 }

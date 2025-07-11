@@ -80,19 +80,19 @@ class NeuralConsciousnessClassifier:
                     hidden_dim=256,
                     output_dim=256
                 ).to(self.device)
-                
+            
                 # Load trained weights for plain model
                 plain_checkpoint = torch.load(plain_model_path, map_location=self.device, weights_only=False)
                 self.plain_model.load_state_dict(plain_checkpoint['model'])
-                
+            
                 # Load vertex classifier for plain model
                 self.plain_vertex_classifier = nn.Linear(256, 32).to(self.device)
                 self.plain_vertex_classifier.load_state_dict(plain_checkpoint['classifier'])
-                
+            
                 # Set to evaluation mode
                 self.plain_model.eval()
                 self.plain_vertex_classifier.eval()
-                
+            
                 logging.info(f"🧠 Plain 5D Neural Network loaded successfully")
                 logging.info(f"📊 Plain model accuracy: {plain_checkpoint.get('accuracy', 'unknown')}")
             else:
@@ -137,7 +137,7 @@ class NeuralConsciousnessClassifier:
             # Set primary model for backward compatibility
             if self.model is None:
                 raise FileNotFoundError("No neural network models found")
-                
+            
         except FileNotFoundError:
             self.initialization_error = "No trained models found. Run training first."
             logging.warning("⚠️ No Neural Network models found - neural classification disabled")
@@ -182,7 +182,7 @@ class NeuralConsciousnessClassifier:
                     plain_vertex_probabilities = torch.softmax(plain_vertex_logits, dim=1)
                     plain_predicted_vertex = plain_vertex_logits.argmax(dim=1).item()
                     plain_confidence = plain_vertex_probabilities[0, plain_predicted_vertex].item()
-                    
+                
                     # Get top 3 predictions for plain model
                     plain_top_probs, plain_top_vertices = torch.topk(plain_vertex_probabilities[0], 3)
                     plain_top_predictions = [
@@ -193,16 +193,16 @@ class NeuralConsciousnessClassifier:
                         }
                         for v, p in zip(plain_top_vertices, plain_top_probs)
                     ]
-                    
+                
                     # Get additional neural outputs
                     plain_consciousness_intensity = plain_outputs['consciousness_intensity'].item()
                     plain_dimension_activations = plain_outputs['dimension_activations'][0].cpu().numpy()
                     dimension_names = ['physical', 'emotional', 'mental', 'intuitive', 'spiritual']
-                    
+
                     plain_neural_dimensions = {
                         name: float(activation) for name, activation in zip(dimension_names, plain_dimension_activations)
                     }
-                    
+                
                     plain_prediction = {
                         'model_type': 'plain_hypercube',
                         'predicted_vertex': plain_predicted_vertex,
@@ -249,7 +249,7 @@ class NeuralConsciousnessClassifier:
                         'mathematical_framework': '1+0+1+0=2^5=32*11/16=22+3.33*3',
                         'cycle_completion': enhanced_outputs.get('aggregated_cycle_completion', torch.tensor(0.0)).mean().item(),
                         'infinitesimal_error': enhanced_outputs.get('global_infinitesimal_error', torch.tensor(0.0)).mean().item(),
-                        'vertex_cycles': enhanced_outputs.get('vertex_cycles', [])[:5]  # First 5 vertex cycles
+                        'vertex_cycles': enhanced_outputs.get('vertex_cycles', [])[:5]
                     }
                     
                     results['models_used'].append('enhanced_aether_hypercube')

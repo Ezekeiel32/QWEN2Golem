@@ -35,11 +35,11 @@ const GolemOutputSchema = z.object({
 export type GolemOutput = z.infer<typeof GolemOutputSchema>;
 
 // Environment variable for the Golem server URL
-const GOLEM_SERVER_URL = process.env.GOLEM_SERVER_URL;
+const GOLEM_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (!GOLEM_SERVER_URL) {
   throw new Error(
-    'GOLEM_SERVER_URL environment variable is not set. Please set it to your ngrok URL.'
+    'NEXT_PUBLIC_BACKEND_URL environment variable is not set. Please configure it in your deployment settings.'
   );
 }
 

@@ -38,7 +38,7 @@ const AssistantMessageContent = ({
   content: string;
   aetherAnalysis?: string | null;
   recommendation?: string | null;
-  golemStats?: any;
+golemStats?: any;
 }) => {
   return (
     <div className="flex flex-col gap-2">
