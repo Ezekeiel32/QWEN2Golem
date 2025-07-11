@@ -257,9 +257,10 @@ function ChatApp() {
             </SidebarMenuItem>
             <ChatHistorySidebar
               conversations={conversations}
-              activeChatId={activeChatId}
               onSelectChat={handleSelectChat}
               isLoading={isLoading}
+              isOpen={isHistoryModalOpen}
+              onOpenChange={setIsHistoryModalOpen}
             />
           </SidebarMenu>
         </SidebarContent>
