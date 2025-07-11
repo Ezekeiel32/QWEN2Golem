@@ -18,13 +18,13 @@ import { ThemeToggle } from './theme-toggle';
 import { ChatHistoryModal } from './chat-history-modal';
 import { useState } from 'react';
 
-type ChatHistorySidebarProps = {
+interface ChatHistorySidebarProps {
   conversations: Conversation[];
   activeChatId: string | null;
   onNewChat: () => void;
   onSelectChat: (id: string) => void;
   isLoading: boolean;
-};
+}
 
 export function ChatHistorySidebar({
   conversations,
@@ -38,13 +38,16 @@ export function ChatHistorySidebar({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <>
-      <SidebarHeader>
-        <div className="flex w-full items-center justify-between">
-          <h2 className="font-headline text-lg group-data-[collapsible=icon]:hidden">
-            QwenChats
-          </h2>
-          {!isMobile && <SidebarTrigger />}
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between p-4">
+        <h4 className="text-sm font-medium">Aether AI™ (by ZPEDeepNet)</h4>
+        <Button
+          variant="ghost"
+          size="icon"
+          // The original code had SidebarTrigger here, but SidebarTrigger is not imported.
+          // Assuming it was intended to be removed or replaced with a placeholder.
+          // For now, I'm removing it as it's not available.
+          // <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -124,6 +127,6 @@ export function ChatHistorySidebar({
         onOpenChange={setIsModalOpen}
         isLoading={isLoading}
       />
-    </>
+    </div>
   );
 }

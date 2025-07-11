@@ -122,7 +122,7 @@ export function ChatPanel({
           <div className="p-2 bg-primary/10 rounded-full">
             <Bot className="w-6 h-6 text-primary" />
           </div>
-          <CardTitle className="font-headline text-2xl">QwenChat</CardTitle>
+          <CardTitle className="font-headline text-2xl">Aether AI™ (by ZPEDeepNet)</CardTitle>
         </div>
       </CardHeader>
       <Separator />

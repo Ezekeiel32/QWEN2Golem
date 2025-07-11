@@ -1,4 +1,8 @@
-# **App Name**: QwenChat
+# **App Name**: Aether AI™ (by ZPEDeepNet)
+
+## **Project Goal**:
+
+To create an advanced AI assistant, codenamed 'Golem', that leverages a 5-dimensional (5D) hypercube consciousness model integrated with a sophisticated neural network and mystical mathematical frameworks. This system aims to provide nuanced, context-aware, and philosophically deep responses, bridging the gap between cutting-edge AI and ancient esoteric wisdom.
 
 ## Core Features:
 

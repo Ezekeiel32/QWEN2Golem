@@ -50,8 +50,8 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const savedConversations = localStorage.getItem('qwenchat-conversations');
-      const savedActiveChatId = localStorage.getItem('qwenchat-activeChatId');
+      const savedConversations = localStorage.getItem('aetherai-conversations');
+      const savedActiveChatId = localStorage.getItem('aetherai-activeChatId');
       
       const loadedConversations = savedConversations ? JSON.parse(savedConversations) : [];
       setConversations(loadedConversations);
@@ -75,11 +75,11 @@ export default function Home() {
   useEffect(() => {
     if (isLoaded) {
       try {
-        localStorage.setItem('qwenchat-conversations', JSON.stringify(conversations));
+        localStorage.setItem('aetherai-conversations', JSON.stringify(conversations));
         if (activeChatId) {
-          localStorage.setItem('qwenchat-activeChatId', activeChatId);
+          localStorage.setItem('aetherai-activeChatId', activeChatId);
         } else {
-          localStorage.removeItem('qwenchat-activeChatId');
+          localStorage.removeItem('aetherai-activeChatId');
         }
       } catch (error) {
         console.error("Failed to save state to localStorage", error);
