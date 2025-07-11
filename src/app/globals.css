@@ -10,8 +10,8 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 262 84% 58%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 355 85% 97%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
@@ -20,61 +20,58 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 262 84% 58%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 346 77% 49%;
+    --radius: 1rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
     
-    /* Page Background for inset layout */
-    --sidebar-background: 240 4.8% 95.9%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 92.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Custom futuristic light theme */
+    --cyber-primary: 346 77% 49%;
+    --cyber-secondary: 200 100% 85%;
+    --cyber-accent: 315 100% 92%;
+    --cyber-glow: 200 100% 70%;
+    --cyber-surface: 0 0% 98%;
+    --cyber-glass: 0 0% 100% / 0.7;
   }
+
   .dark {
-    --background: 240 5% 12%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 5% 12%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 6% 10%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 262 84% 62%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted-foreground: 240 5% 64.9%;
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 262 84% 62%;
+    --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     
-    /* Page Background for inset layout */
-    --sidebar-background: 240 6% 8%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Custom futuristic dark theme */
+    --cyber-primary: 200 100% 70%;
+    --cyber-secondary: 240 100% 85%;
+    --cyber-accent: 280 100% 85%;
+    --cyber-glow: 200 100% 50%;
+    --cyber-surface: 240 10% 8%;
+    --cyber-glass: 240 10% 15% / 0.7;
   }
 }
 
@@ -83,6 +80,81 @@
     @apply border-border;
   }
   body {
-    @apply bg-sidebar text-foreground;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+/* Custom futuristic styles */
+@layer utilities {
+  .cyber-glow {
+    box-shadow: 0 0 20px hsl(var(--cyber-glow) / 0.3);
+  }
+  
+  .cyber-glow-strong {
+    box-shadow: 0 0 30px hsl(var(--cyber-glow) / 0.5), 0 0 60px hsl(var(--cyber-glow) / 0.2);
+  }
+  
+  .cyber-glass {
+    background: hsl(var(--cyber-glass));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  .cyber-border {
+    border: 1px solid hsl(var(--cyber-glow) / 0.3);
+  }
+  
+  .cyber-gradient {
+    background: linear-gradient(135deg, hsl(var(--cyber-primary)) 0%, hsl(var(--cyber-secondary)) 100%);
+  }
+  
+  .cyber-text-gradient {
+    background: linear-gradient(135deg, hsl(var(--cyber-primary)) 0%, hsl(var(--cyber-secondary)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .cyber-surface {
+    background: hsl(var(--cyber-surface));
+  }
+  
+  .cyber-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .cyber-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px hsl(var(--cyber-glow) / 0.2);
+  }
+}
+
+/* Animations */
+@keyframes cyber-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes cyber-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cyber-pulse {
+  animation: cyber-pulse 2s ease-in-out infinite;
+}
+
+.cyber-float {
+  animation: cyber-float 3s ease-in-out infinite;
 }

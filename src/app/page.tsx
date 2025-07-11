@@ -230,23 +230,23 @@ function ChatApp() {
 
   return (
     <>
-      <Sidebar variant="inset" collapsible="icon" className="border-r border-border/50 bg-card/30 backdrop-blur-sm">
-        <SidebarContent className="p-2">
+      <Sidebar variant="inset" collapsible="icon" className="cyber-border border-r cyber-glass backdrop-blur-xl">
+        <SidebarContent className="p-3">
           <SidebarMenu>
             <SidebarMenuItem className="p-2">
               <SidebarMenuButton
                 onClick={handleNewChat}
                 disabled={isLoading}
                 variant="default"
-                className="w-full bg-gradient-to-r from-primary to-purple-500 text-white hover:from-primary/90 hover:to-purple-500/90 transition-all duration-200 shadow-lg border-0 rounded-xl h-12"
+                className="w-full cyber-gradient text-white hover:scale-105 cyber-hover cyber-glow-strong border-0 rounded-2xl h-14 text-lg font-semibold"
                 tooltip={{
-                  children: 'New Chat',
+                  children: 'Initialize Neural Link',
                   side: 'right',
                   align: 'center',
                 }}
               >
-                <Plus className="h-5 w-5" />
-                <span className="font-medium">New Chat</span>
+                <Plus className="h-6 w-6" />
+                <span className="font-bold">Neural Link</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <ChatHistorySidebar
@@ -258,28 +258,28 @@ function ChatApp() {
             />
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-4 border-t border-border/50">
+        <SidebarFooter className="p-4 cyber-border border-t">
           <div className="flex items-center justify-between">
             <ThemeToggle />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsHistoryModalOpen(true)}
-              className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary transition-all duration-200 rounded-lg"
+              className="flex items-center gap-2 cyber-glass cyber-border cyber-hover cyber-glow rounded-xl px-4 py-2"
             >
-              <MessagesSquare className="h-4 w-4" />
-              <span className="text-xs font-medium">History</span>
+              <MessagesSquare className="h-5 w-5" />
+              <span className="text-sm font-semibold">Neural Archive</span>
             </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 bg-card/50 backdrop-blur-sm border-b border-border/50">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">Aether AI™</h1>
+      <SidebarInset className="cyber-surface">
+        <header className="flex h-20 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-16 cyber-glass cyber-border border-b backdrop-blur-xl">
+          <div className="flex items-center gap-4 px-6">
+            <SidebarTrigger className="-ml-1 h-10 w-10 cyber-glass cyber-border rounded-full cyber-hover" />
+            <Separator orientation="vertical" className="mr-4 h-8 bg-gradient-to-b from-transparent via-border to-transparent" />
+            <div className="flex items-baseline gap-3">
+              <h1 className="text-3xl font-bold tracking-tight cyber-text-gradient">Aether AI™</h1>
               <span className="text-sm font-medium text-muted-foreground">(by ZPEDeepNet®)</span>
             </div>
           </div>

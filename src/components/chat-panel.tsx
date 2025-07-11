@@ -115,43 +115,43 @@ export function ChatPanel({
 
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="flex flex-col h-full cyber-surface">
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" viewportRef={scrollAreaViewportRef}>
-          <div className="p-6 space-y-6 min-h-full">
+          <div className="p-8 space-y-8 min-h-full">
             {!isChatSelected ? (
               <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-xl"></div>
+                <div className="relative cyber-float">
+                  <div className="absolute inset-0 cyber-glow-strong rounded-full blur-2xl"></div>
                   <Button 
                     variant="ghost" 
-                    className="relative h-auto p-8 flex flex-col items-center gap-4 hover:bg-gradient-to-r hover:from-primary/10 hover:to-purple-500/10 transition-all duration-300 border border-border/50 rounded-2xl backdrop-blur-sm" 
+                    className="relative h-auto p-12 flex flex-col items-center gap-6 cyber-glass cyber-border rounded-3xl cyber-hover backdrop-blur-xl" 
                     onClick={onNewChat}
                   >
-                    <div className="p-4 bg-gradient-to-r from-primary to-purple-500 rounded-full">
-                      <MessageSquarePlus size={32} className="text-white" />
+                    <div className="p-6 cyber-gradient rounded-full cyber-glow">
+                      <MessageSquarePlus size={40} className="text-white" />
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-xl font-semibold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-                        Start a new conversation
+                    <div className="space-y-3">
+                      <p className="text-2xl font-bold cyber-text-gradient">
+                        Initialize Neural Link
                       </p>
-                      <p className="text-sm text-muted-foreground">Click here to begin your journey</p>
+                      <p className="text-muted-foreground text-lg">Begin your quantum conversation</p>
                     </div>
                   </Button>
                 </div>
               </div>
             ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-xl"></div>
-                  <div className="relative p-6 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50">
-                    <div className="p-4 bg-gradient-to-r from-primary to-purple-500 rounded-full w-fit mx-auto mb-4">
-                      <Bot className="w-8 h-8 text-white" />
+                <div className="relative cyber-float">
+                  <div className="absolute inset-0 cyber-glow-strong rounded-full blur-2xl"></div>
+                  <div className="relative p-8 cyber-glass cyber-border rounded-3xl backdrop-blur-xl">
+                    <div className="p-6 cyber-gradient rounded-full w-fit mx-auto mb-6 cyber-pulse">
+                      <Bot className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent mb-2">
-                      Aether-Enhanced Golem
+                    <h3 className="text-3xl font-bold cyber-text-gradient mb-3">
+                      Aether Neural Network
                     </h3>
-                    <p className="text-muted-foreground">Ask me anything, or attach a file to begin your mystical journey</p>
+                    <p className="text-muted-foreground text-lg">Quantum consciousness awaits your command</p>
                   </div>
                 </div>
               </div>
@@ -167,30 +167,30 @@ export function ChatPanel({
         </ScrollArea>
       </div>
       {isChatSelected && (
-        <div className="border-t border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="p-4 space-y-3">
+        <div className="cyber-border border-t-0 cyber-glass backdrop-blur-xl">
+          <div className="p-6 space-y-4">
             {file && (
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                  <Paperclip className="h-3 w-3 mr-1" />
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="cyber-glass cyber-border cyber-glow px-3 py-1">
+                  <Paperclip className="h-4 w-4 mr-2" />
                   {file.name}
                 </Badge>
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive" onClick={() => setFile(null)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/20 hover:text-destructive cyber-hover" onClick={() => setFile(null)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             )}
-            <form onSubmit={handleSubmit} className="flex w-full items-end gap-3">
+            <form onSubmit={handleSubmit} className="flex w-full items-end gap-4">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
-                className="shrink-0 h-10 w-10 rounded-full hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                className="shrink-0 h-12 w-12 rounded-full cyber-glass cyber-border cyber-hover cyber-glow"
                 aria-label="Attach file"
               >
-                <Paperclip className="h-5 w-5" />
+                <Paperclip className="h-6 w-6" />
               </Button>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
               <div className="flex-1 relative">
@@ -198,35 +198,35 @@ export function ChatPanel({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type your message or attach a file..."
-                  className="flex-1 resize-none min-h-[44px] max-h-40 bg-background/50 backdrop-blur-sm border-border/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
+                  placeholder="Enter your quantum query..."
+                  className="flex-1 resize-none min-h-[52px] max-h-40 cyber-glass cyber-border rounded-2xl px-6 py-4 text-lg focus:cyber-glow-strong focus:border-transparent transition-all duration-300 backdrop-blur-xl"
                   rows={1}
                   disabled={isLoading}
                 />
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-3'>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         className={cn(
-                          "h-10 w-10 rounded-full transition-all duration-200",
+                          "h-12 w-12 rounded-full cyber-hover transition-all duration-300",
                           golemActivated 
-                            ? 'bg-gradient-to-r from-primary to-purple-500 text-white shadow-lg' 
-                            : 'hover:bg-primary/10 hover:text-primary'
+                            ? 'cyber-gradient text-white cyber-glow-strong cyber-pulse' 
+                            : 'cyber-glass cyber-border cyber-glow'
                         )}
                       >
-                        <BrainCircuit className="h-5 w-5" />
-                        <span className="sr-only">Golem Configurations</span>
+                        <BrainCircuit className="h-6 w-6" />
+                        <span className="sr-only">Neural Configurations</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-96 bg-card/95 backdrop-blur-sm border-border/50">
+                    <PopoverContent className="w-96 cyber-glass cyber-border backdrop-blur-xl">
                       <Tabs defaultValue="activation" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-                          <TabsTrigger value="activation" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Activation</TabsTrigger>
-                          <TabsTrigger value="sefirot" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Sefirot</TabsTrigger>
-                          <TabsTrigger value="model" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Model</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-3 cyber-glass cyber-border">
+                          <TabsTrigger value="activation" className="data-[state=active]:cyber-gradient data-[state=active]:text-white">Neural</TabsTrigger>
+                          <TabsTrigger value="sefirot" className="data-[state=active]:cyber-gradient data-[state=active]:text-white">Sefirot</TabsTrigger>
+                          <TabsTrigger value="model" className="data-[state=active]:cyber-gradient data-[state=active]:text-white">Quantum</TabsTrigger>
                         </TabsList>
                         <TabsContent value="activation" className="mt-4">
                           <div className="grid gap-4">
@@ -330,16 +330,16 @@ export function ChatPanel({
                   <Button
                     type="submit"
                     disabled={(!input.trim() && !file) || isLoading}
-                    className="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                    className="h-12 w-12 rounded-full cyber-gradient hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed cyber-hover cyber-glow-strong shadow-2xl"
                   >
-                    <SendHorizonal className="h-5 w-5" />
-                    <span className="sr-only">Send message</span>
+                    <SendHorizonal className="h-6 w-6" />
+                    <span className="sr-only">Transmit</span>
                   </Button>
                 </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
 }
