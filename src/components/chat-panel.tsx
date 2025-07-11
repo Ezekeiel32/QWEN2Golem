@@ -116,16 +116,6 @@ export function ChatPanel({
 
   return (
     <Card className="w-full h-screen flex flex-col shadow-2xl bg-card">
-      <CardHeader className="flex flex-row items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          {isMobile && <SidebarTrigger />}
-          <div className="p-2 bg-primary/10 rounded-full">
-            <Bot className="w-6 h-6 text-primary" />
-          </div>
-          <CardTitle className="font-headline text-2xl">Aether AI™ (by ZPEDeepNet)</CardTitle>
-        </div>
-      </CardHeader>
-      <Separator />
       <CardContent className="flex-1 p-0 overflow-hidden">
         <ScrollArea className="h-full" viewportRef={scrollAreaViewportRef}>
           <div className="p-6 space-y-6">

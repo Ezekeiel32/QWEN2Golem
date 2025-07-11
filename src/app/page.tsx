@@ -280,7 +280,7 @@ function ChatApp() {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div className="flex items-baseline gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Aether AI™</h1>
-              <span className="text-sm font-medium text-muted-foreground">(by ZPEDeepNet OR)</span>
+              <span className="text-sm font-medium text-muted-foreground">(by ZPEDeepNet®)</span>
             </div>
           </div>
         </header>
