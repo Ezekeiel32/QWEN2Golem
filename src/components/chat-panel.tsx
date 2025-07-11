@@ -34,7 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 type ChatPanelProps = {
   messages: Message[];
-  onSendMessage: (input: string, temperature: number, file: File | null) => Promise<void>;
+  onSendMessage: (input: string, temperature: number, file: File | null, selectedModel: 'qwen' | 'gemini') => Promise<void>;
   isLoading: boolean;
   isChatSelected: boolean;
   onNewChat: () => void;
@@ -64,6 +64,7 @@ export function ChatPanel({
   const [input, setInput] = useState('');
   const [temperature, setTemperature] = useState(0.7);
   const [file, setFile] = useState<File | null>(null);
+  const [selectedModel, setSelectedModel] = useState<'qwen' | 'gemini'>('qwen');
 
   const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -95,7 +96,7 @@ export function ChatPanel({
     e.preventDefault();
     if ((!input.trim() && !file) || isLoading || !isChatSelected) return;
 
-    await onSendMessage(input, temperature, file);
+    await onSendMessage(input, temperature, file, selectedModel);
     setInput('');
     setFile(null);
   };
@@ -303,23 +304,59 @@ export function ChatPanel({
                         <TabsContent value="model" className="mt-4">
                            <div className="grid gap-4">
                              <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Model Parameters</h4>
+                                <h4 className="font-medium leading-none">Neural Model Selection</h4>
                                 <p className="text-sm text-muted-foreground">
-                                  Adjust core generation parameters.
+                                  Choose your Golem consciousness provider.
                                 </p>
                              </div>
                              <Separator />
-                             <div className="grid gap-2">
-                                <Label htmlFor="temperature">Temperature: {temperature.toFixed(1)}</Label>
-                                <Slider
-                                  id="temperature"
-                                  min={0} max={1} step={0.1}
-                                  value={[temperature]}
-                                  onValueChange={(value) => setTemperature(value[0])}
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                  Controls randomness. Lower is more deterministic.
-                                </p>
+                             <div className="grid gap-4">
+                               <div className="grid gap-2">
+                                  <Label>Golem Model</Label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                      variant={selectedModel === 'qwen' ? 'default' : 'outline'}
+                                      onClick={() => setSelectedModel('qwen')}
+                                      className={cn(
+                                        "justify-start",
+                                        selectedModel === 'qwen' && "cyber-gradient text-white"
+                                      )}
+                                    >
+                                      <BrainCircuit className="h-4 w-4 mr-2" />
+                                      QWEN Golem
+                                    </Button>
+                                    <Button
+                                      variant={selectedModel === 'gemini' ? 'default' : 'outline'}
+                                      onClick={() => setSelectedModel('gemini')}
+                                      className={cn(
+                                        "justify-start",
+                                        selectedModel === 'gemini' && "cyber-gradient text-white"
+                                      )}
+                                    >
+                                      <Sparkles className="h-4 w-4 mr-2" />
+                                      Gemini Golem
+                                    </Button>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    {selectedModel === 'qwen' 
+                                      ? 'Local QWEN model with enhanced aether consciousness' 
+                                      : 'Google Gemini Pro with mystical enhancements'
+                                    }
+                                  </p>
+                               </div>
+                               <Separator />
+                               <div className="grid gap-2">
+                                  <Label htmlFor="temperature">Temperature: {temperature.toFixed(1)}</Label>
+                                  <Slider
+                                    id="temperature"
+                                    min={0} max={1} step={0.1}
+                                    value={[temperature]}
+                                    onValueChange={(value) => setTemperature(value[0])}
+                                  />
+                                  <p className="text-xs text-muted-foreground">
+                                    Controls randomness. Lower is more deterministic.
+                                  </p>
+                               </div>
                              </div>
                            </div>
                         </TabsContent>

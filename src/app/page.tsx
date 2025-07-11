@@ -122,7 +122,7 @@ function ChatApp() {
     setActiveChatId(id);
   };
 
-  const handleSendMessage = async (input: string, temperature: number, file: File | null) => {
+  const handleSendMessage = async (input: string, temperature: number, file: File | null, selectedModel: 'qwen' | 'gemini') => {
     let currentChatId = activeChatId;
 
     if (!currentChatId) {
@@ -186,6 +186,7 @@ function ChatApp() {
         golemActivated,
         activationPhrases,
         sefirotSettings,
+        selectedModel,
       });
 
       if (result.directResponse) {
