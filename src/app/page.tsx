@@ -24,6 +24,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/hooks/use-sidebar';
 
+// Force redeploy on Vercel
 export type Message = {
   role: 'user' | 'assistant';
   content: string; // For user messages, this is the prompt. For assistant, the direct response.
